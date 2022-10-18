@@ -939,30 +939,30 @@ class Food:
         if self.rect.collidepoint(pos):
             if pygame.mouse.get_pressed()[0] == 1 and isClicked == False:
                 # code here
+                if PlayerCharacter.cash >= ShopListCost[ShopID]:
+                    # Adjusts Food
+                    if PlayerCharacter.max_food - PlayerCharacter.food < self.foodIncrease:
+                        PlayerCharacter.food = PlayerCharacter.max_food
+                    else:
+                        PlayerCharacter.food += self.foodIncrease
 
-                # Adjusts Food
-                if PlayerCharacter.max_food - PlayerCharacter.food < self.foodIncrease:
-                    PlayerCharacter.food = PlayerCharacter.max_food
+                    # Adjusts Health
+                    if PlayerCharacter.max_hp - PlayerCharacter.hp < self.HPIncrease:
+                        PlayerCharacter.hp = PlayerCharacter.max_hp
+                    else:
+                        PlayerCharacter.hp += self.HPIncrease
+
+                    # Decrease Exhaustion
+                    if PlayerCharacter.exhaustion > self.sleepDecrease:
+                        PlayerCharacter.exhaustion -= self.sleepDecrease
+                    else:
+                        PlayerCharacter.exhaustion = 0
+
+                    PlayerCharacter.cash -= ShopListCost[ShopID]
+                    isClicked = True
                 else:
-                    PlayerCharacter.food += self.foodIncrease
-
-                # Adjusts Health
-                if PlayerCharacter.max_hp - PlayerCharacter.hp < self.HPIncrease:
-                    PlayerCharacter.hp = PlayerCharacter.max_hp
-                else:
-                    PlayerCharacter.hp += self.HPIncrease
-
-                # Decrease Exhaustion
-                if PlayerCharacter.exhaustion > self.sleepDecrease:
-                    PlayerCharacter.exhaustion -= self.sleepDecrease
-                else:
-                    PlayerCharacter.exhaustion = 0
-
-                PlayerCharacter.cash -= ShopListCost[ShopID]
-                isClicked = True
-            else:
-                fly_text = FlyText(150, 15, str("Need More Cash"), pygame.Color('black'))
-                fly_text_group.add(fly_text)
+                    fly_text = FlyText(150, 15, str("Need More Cash"), pygame.Color('black'))
+                    fly_text_group.add(fly_text)
 
         if pygame.mouse.get_pressed()[0] == 0:
             isClicked = False
