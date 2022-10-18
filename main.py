@@ -963,17 +963,18 @@ class Food:
                 else:
                     fly_text = FlyText(150, 15, str("Need More Cash"), pygame.Color('black'))
                     fly_text_group.add(fly_text)
+                    isClicked = True
 
         if pygame.mouse.get_pressed()[0] == 0:
             isClicked = False
 
-            # draw button
-            self.surface.blit(self.image, (self.rect.x, self.rect.y))
-            # text = font.render(LivingIDList[self.HouseID], True, Font_InActiveTextColor)
-            text_rect = text.get_rect(center=(self.x + self.size_x / 2, self.y + 15))
-            subText_rect = subtext.get_rect(center=(self.x + self.size_x / 2, self.y + 35))
-            self.surface.blit(text, text_rect)
-            self.surface.blit(subtext, subText_rect)
+        # draw button
+        self.surface.blit(self.image, (self.rect.x, self.rect.y))
+        # text = font.render(LivingIDList[self.HouseID], True, Font_InActiveTextColor)
+        text_rect = text.get_rect(center=(self.x + self.size_x / 2, self.y + 15))
+        subText_rect = subtext.get_rect(center=(self.x + self.size_x / 2, self.y + 35))
+        self.surface.blit(text, text_rect)
+        self.surface.blit(subtext, subText_rect)
 
 
 """        
@@ -1280,7 +1281,13 @@ def SaveGame():
 
 def ResetStats():
     global DayCount
-    PlayerCharacter
+    global LivingID
+    global LivingBools
+    global JobID
+    global JobListBools
+    global ShopID
+    global CurrentJob
+    global CurrentLiving
     PlayerCharacter.hp = 100
     PlayerCharacter.food = 100
     PlayerCharacter.exhaustion = 100
@@ -1301,25 +1308,18 @@ def ResetStats():
         int(8): False
     }
     JobID = 0
-    JobListBools = {0: True, 1: False, 2: False}
-    # Health Variables
-    PlayerHealthCD = 1.5
-    HP_Token = True
-    HP_Increase = 25
-    HP_Food_Decrease_Token = False
-    HP_Exhaustion_Decrease_Token = False
-    HP_Decrease = .05
-    HP_tick = .025
-
-    # Sleep Variables
-    Sleep_Token = False
-    Sleep_Increase = 25
-    Sleep_tick = .025
-
-    # Food Variables
-    Food_Token = False
-    Food_Increase = 25
-    Food_tick = .025
+    JobListBools = {
+        0: True,
+        1: False,
+        2: False,
+        3: False,
+        4: False,
+        5: False,
+        6: False,
+        7: False,
+        8: False
+    }
+    ShopID = 0
 
 
 LoadGame()

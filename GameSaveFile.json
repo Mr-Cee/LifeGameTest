@@ -8,7 +8,7 @@
     "HP_Increase": 75,
     "Food_Increase": 75,
     "Sleep_Increase": 100,
-    "Day_Count": 33,
+    "Day_Count": 1,
     "Day_Length": 5,
     "HasJob": false,
     "JobListBools": {
