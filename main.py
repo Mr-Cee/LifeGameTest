@@ -159,10 +159,22 @@ LivingButtonIMG = {
 }
 
 # Shop Variables
+ShopID = 0
 ShopList = {0 : "Beg for Food",
             1 : "Corn Dog",
             2 : "Burger",
-            3 : "Fried Chicken"}
+            3 : "Fried Chicken",
+            4 : "Spaghetti",
+            5 : "Lasagna",
+            6 : "Steak"}
+
+ShopListCost = {0 : 0,
+                1 : 3,
+                2 : 10,
+                3 : 50,
+                4 : 200,
+                5 : 1000,
+                6 : 5000}
 
 # Job Variables
 CurrentJob = "Jobless"
@@ -233,11 +245,6 @@ Food_Increase = 25
 Food_tick = .025
 Food_Work_Decrease = 10
 
-
-#background_img = pygame.image.load('Images/Backgrounds/Home.png').convert_alpha()
-#background_img = pygame.transform.scale(background_img,(background_img.get_width() / 2, background_img.get_height() / 2))
-
-
 class Person:
 
     def __init__(self, hp, maxhp, hp_auto_regen, food, max_food,
@@ -273,9 +280,6 @@ class DayBar:
         self.seconds = 0
 
     def draw(self):
-        # update with new health
-        #self.DayCount = DayCount
-        # calculate health ratio
         global GameStartTicks
         global TimerStartTicks
         global DayCount
@@ -872,6 +876,55 @@ class Work:
         text_rect = text.get_rect(center=(self.x + self.size_x / 2,
                                           self.y + self.size_y / 2))
         self.surface.blit(text, text_rect)
+
+
+class Food:
+    def __init__(self, surface, x, y, image, size_x, size_y, ID):
+        global ShopID
+        self.image = pygame.transform.scale(image, (size_x, size_y))
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (x, y)
+        self.clicked = False
+        self.surface = surface
+        self.size_x = size_x
+        self.size_y = size_y
+        self.x = x
+        self.y = y
+        self.ID = ID
+
+    def draw(self):
+        # get mouse position
+        pos = pygame.mouse.get_pos()
+        global isClicked
+        global ShopList
+        global ShopID
+
+        font = pygame.font.SysFont('Times New Roman', fit_text_to_width("Eat " + ShopList[ShopID], pygame.Color('black'), 105))
+        subfont = pygame.font.SysFont('Times New Roman', fit_text_to_width("${:,}".format(ShopList[self.ID]), pygame.Color('black'), 45))
+
+        if JobID > 0:
+            text = font.render("Eat " + ShopList[ShopID], True, Font_ActiveTextColor)
+            subtext = subfont.render("${:,}".format(ShopListCost[self.ID]), True, Font_ActiveTextColor)
+        else:
+            text = font.render("Beg for Food", True, Font_ActiveTextColor)
+            subtext = subfont.render("${:,}".format(ShopListCost[self.ID]), True, Font_ActiveTextColor)
+
+        # check mouseover and clicked conditions
+        if self.rect.collidepoint(pos):
+            if pygame.mouse.get_pressed()[0] == 1 and isClicked == False:
+                # code here
+                isClicked = True
+
+        if pygame.mouse.get_pressed()[0] == 0:
+            isClicked = False
+
+            # draw button
+            self.surface.blit(self.image, (self.rect.x, self.rect.y))
+            # text = font.render(LivingIDList[self.HouseID], True, Font_InActiveTextColor)
+            text_rect = text.get_rect(center=(self.x + self.size_x / 2, self.y + 15))
+            subText_rect = subtext.get_rect(center=(self.x + self.size_x / 2, self.y + 35))
+            self.surface.blit(text, text_rect)
+            self.surface.blit(subtext, subText_rect)
 
 
 """        
