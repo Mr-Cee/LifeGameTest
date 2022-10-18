@@ -1,12 +1,12 @@
 {
-    "hp": 99.14143687499866,
+    "hp": 138.90487624999878,
     "max_hp": 150,
     "hp_auto_regen": 0,
-    "food": 150,
+    "food": 146.9048762500006,
     "max_food": 150,
     "food_auto_regen": 0,
     "exhaustion": 0,
     "max_exhaustion": 175,
     "exhaust_auto_regen": 0,
-    "cash": 88220.0
+    "cash": 86605.0
 }

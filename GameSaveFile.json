@@ -2,15 +2,13 @@
     "resolution_x": 896,
     "resolution_y": 512,
     "currentLivingSpace": "Basic House",
-    "StarterApartment": false,
-    "AdvancedApartment": false,
     "HP_tick": 0.019344523437499997,
     "Food_tick": 0.019344523437499997,
     "Sleep_tick": 0.005932617187500001,
     "HP_Increase": 75,
     "Food_Increase": 75,
     "Sleep_Increase": 100,
-    "Day_Count": 21,
+    "Day_Count": 29,
     "Day_Length": 5,
     "HasJob": false,
     "JobListBools": {
@@ -37,5 +35,6 @@
         "6": false,
         "7": false,
         "8": false
-    }
+    },
+    "ShopID": 4
 }
