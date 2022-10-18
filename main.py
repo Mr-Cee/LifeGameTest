@@ -109,9 +109,12 @@ Home_button_img = pygame.image.load(
     'Images/Icons/home_button.png').convert_alpha()
 
 # Player Variables
-# Cash = 0
+DayCount = 0
+DayLength = 5
+NewDay = False
+
+# Home Variables
 CurrentLiving = "Homeless"
-CurrentJob = "Jobless"
 LivingID = 0
 LivingIDList = {
     0: "Homeless",
@@ -154,13 +157,15 @@ LivingButtonIMG = {
     101: BTN_apartment_starter_img_active,
     102: BTN_apartment_fancy_img_active
 }
-StarterApartment = False
-AdvancedApartment = False
-DayCount = 0
-DayLength = 5
-NewDay = False
+
+# Shop Variables
+ShopList = {0 : "Beg for Food",
+            1 : "Corn Dog",
+            2 : "Burger",
+            3 : "Fried Chicken"}
 
 # Job Variables
+CurrentJob = "Jobless"
 HasJob = False
 TestJob = False
 JobID = 0
@@ -216,7 +221,6 @@ HP_Exhaustion_Decrease_Token = False
 HP_Decrease = .05
 HP_tick = .025
 
-
 # Sleep Variables
 Sleep_Token = False
 Sleep_Increase = 25
@@ -229,14 +233,9 @@ Food_Increase = 25
 Food_tick = .025
 Food_Work_Decrease = 10
 
-screen = pygame.display.set_mode((GameWindowWidth, GameWindowHeight))
-pygame.display.set_caption("Text RPG Game")
 
-background_img = pygame.image.load(
-    'Images/Backgrounds/Home.png').convert_alpha()
-background_img = pygame.transform.scale(
-    background_img,
-    (background_img.get_width() / 2, background_img.get_height() / 2))
+#background_img = pygame.image.load('Images/Backgrounds/Home.png').convert_alpha()
+#background_img = pygame.transform.scale(background_img,(background_img.get_width() / 2, background_img.get_height() / 2))
 
 
 class Person:
@@ -820,13 +819,18 @@ class Work:
         global LivingID
         global JobListBools
 
-        font = pygame.font.SysFont('Times New Roman', fit_text_to_width("Work For: " + str("${:,}".format(self.CashIncome)), pygame.Color('black'), 105))
+        font = pygame.font.SysFont(
+            'Times New Roman',
+            fit_text_to_width(
+                "Work For: " + str("${:,}".format(self.CashIncome)),
+                pygame.Color('black'), 105))
 
         if JobID > 0:
-            text = font.render("Work For: " + "${:,}".format(JobListIncome[JobID] * .10), True, Font_ActiveTextColor)
+            text = font.render(
+                "Work For: " + "${:,}".format(JobListIncome[JobID] * .10),
+                True, Font_ActiveTextColor)
         else:
             text = font.render("Beg for $5", True, Font_ActiveTextColor)
-
 
         # check mouseover and clicked conditions
         if self.rect.collidepoint(pos):
@@ -865,9 +869,9 @@ class Work:
 
         # draw button
         self.surface.blit(self.image, (self.rect.x, self.rect.y))
-        text_rect = text.get_rect(center=(self.x + self.size_x / 2, self.y + self.size_y/2))
+        text_rect = text.get_rect(center=(self.x + self.size_x / 2,
+                                          self.y + self.size_y / 2))
         self.surface.blit(text, text_rect)
-
 
 
 """        
@@ -1079,8 +1083,6 @@ def CreateCharacter():
 def LoadGame():
     global PlayerCharacter
     global CurrentLiving
-    global StarterApartment
-    global AdvancedApartment
     global GameWindowWidth
     global GameWindowHeight
     global screen
@@ -1105,8 +1107,6 @@ def LoadGame():
         with open('GameSaveFile.json') as data_file:
             data = json.load(data_file)
         CurrentLiving = data["currentLivingSpace"]
-        StarterApartment = data["StarterApartment"]
-        AdvancedApartment = data["AdvancedApartment"]
         GameWindowHeight = data["resolution_y"]
         GameWindowWidth = data["resolution_x"]
         HP_tick = data["HP_tick"]
@@ -1143,8 +1143,6 @@ def SaveGame():
         "resolution_x": GameWindowWidth,
         "resolution_y": GameWindowHeight,
         "currentLivingSpace": CurrentLiving,
-        "StarterApartment": StarterApartment,
-        "AdvancedApartment": AdvancedApartment,
         "HP_tick": HP_tick,
         "Food_tick": Food_tick,
         "Sleep_tick": Sleep_tick,
@@ -1219,7 +1217,6 @@ def ResetStats():
     Food_tick = .025
 
 
-
 LoadGame()
 
 fly_text_group = pygame.sprite.Group()
@@ -1243,7 +1240,8 @@ sleep_bed_button = SleepButton(screen, player_exhaustion_bar.x,
                                150, 50)
 
 # Creates Cash buttons
-beg_button = Work(screen, player_health_bar.x, player_health_bar.y + 60, BTN_Empty_IMG, 150, 50)
+Work_button = Work(screen, player_health_bar.x, player_health_bar.y + 60,
+                   BTN_Empty_IMG, 150, 50)
 
 # Creates the Food Buttons
 beg_food_button = BegFoodButton(screen, player_food_bar.x,
@@ -1375,7 +1373,7 @@ while GameRunning:
         DayProgressBar.draw()
         sleep_bed_button.draw()
         food_hotdog_button.draw()
-        beg_button.draw()
+        Work_button.draw()
         beg_food_button.draw()
         food_hamburger_button.draw()
 
