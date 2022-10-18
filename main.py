@@ -175,7 +175,30 @@ ShopListCost = {0 : 0,
                 4 : 200,
                 5 : 1000,
                 6 : 5000}
-
+ShopListHPIncrease = {0: 5,
+                      1: 8,
+                      2: 11,
+                      3: 14,
+                      4: 17,
+                      5: 20,
+                      6: 23
+                      }
+ShopListFoodIncrease = {0: 10,
+                        1: 15,
+                        2: 20,
+                        3: 25,
+                        4: 30,
+                        5: 35,
+                        6: 40
+                        }
+ShopListSleepDecrease = {0: 7,
+                        1: 11,
+                        2: 15,
+                        3: 19,
+                        4: 23,
+                        5: 27,
+                        6: 31
+                        }
 # Job Variables
 CurrentJob = "Jobless"
 HasJob = False
@@ -1334,7 +1357,7 @@ food_hotdog_button = FoodButton(screen, player_food_bar.x,
 food_hamburger_button = Button_Food_Hamburger(screen, player_food_bar.x,
                                               player_food_bar.y + 180,
                                               BTN_hamburger_img, 150, 50)
-BTN_Food_Beg = Food(screen, player_food_bar.x, player_food_bar.y + 60, BTN_Empty_IMG, 150, 50, 0, 10, 5, 7)
+BTN_Food_Beg = Food(screen, player_food_bar.x, player_food_bar.y + 60, BTN_Empty_IMG, 150, 50, 0, ShopListFoodIncrease[ShopID], ShopListHPIncrease[ShopID], ShopListSleepDecrease[ShopID])
 
 # Creates House buttons
 BTN_apartment_starter = House(screen, player_health_bar.x,
