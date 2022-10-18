@@ -1289,8 +1289,11 @@ def ResetStats():
     global CurrentJob
     global CurrentLiving
     PlayerCharacter.hp = 100
+    PlayerCharacter.max_hp = 100
     PlayerCharacter.food = 100
+    PlayerCharacter.max_food = 100
     PlayerCharacter.exhaustion = 100
+    PlayerCharacter.max_exhaustion = 100
     PlayerCharacter.cash = 0
     DayCount = 0
     CurrentLiving = "Homeless"

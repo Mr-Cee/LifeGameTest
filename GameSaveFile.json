@@ -1,7 +1,7 @@
 {
     "resolution_x": 896,
     "resolution_y": 512,
-    "currentLivingSpace": "Basic House",
+    "currentLivingSpace": "Homeless",
     "HP_tick": 0.019344523437499997,
     "Food_tick": 0.019344523437499997,
     "Sleep_tick": 0.005932617187500001,
@@ -24,17 +24,17 @@
     },
     "JobID": 0,
     "CurrentJob": "Jobless",
-    "LivingID": 5,
+    "LivingID": 0,
     "LivingBools": {
-        "0": false,
+        "0": true,
         "1": false,
         "2": false,
         "3": false,
         "4": false,
-        "5": true,
+        "5": false,
         "6": false,
         "7": false,
         "8": false
     },
-    "ShopID": 4
+    "ShopID": 0
 }
