@@ -880,10 +880,10 @@ class ShopFood:
                             ShopFoodListUnlockBools[self.FoodID] = True
                             PlayerCharacter.cash -= ShopFoodListUnlockCost[self.FoodID]
                     else:
-                        fly_text = FlyText(75, 20, str("Not Enough Cash"), pygame.Color('black'))
+                        fly_text = FlyText(75, 20, str("Not Enough Cash"), pygame.Color('red'))
                         fly_text_group.add(fly_text)
                 elif HasFood and ShopID != self.FoodID:
-                    fly_text = FlyText(75, 25, str("Please deselect your current food"),
+                    fly_text = FlyText(75, 27, str("Please deselect your current food"),
                                        pygame.Color('red'))
                     fly_text_group.add(fly_text)
                 else:
