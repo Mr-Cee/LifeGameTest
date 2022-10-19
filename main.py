@@ -482,11 +482,8 @@ class House:
                     Sleep_tick *= self.SleepTickMod
                     HP_tick *= self.HPTickMod
                     Food_tick *= self.FoodTickMod
-                    HP_Increase += 10
                     PlayerCharacter.max_hp += 10
-                    Food_Increase += 10
                     PlayerCharacter.max_food += 10
-                    Sleep_Increase += 15
                     PlayerCharacter.max_exhaustion += 15
                 else:
                     fly_text = FlyText(150, 15, str("Need More Cash"),
@@ -1096,6 +1093,8 @@ def SaveGame():
         "HP_Increase": HP_Increase,
         "Food_Increase": Food_Increase,
         "Sleep_Increase": Sleep_Increase,
+        "Sleep_Decrease_Food": Sleep_Decrease_Food,
+        "Sleep_Increase_HP": Sleep_Increase_HP,
         "Day_Count": DayCount,
         "Day_Length": DayLength,
         "HasJob": HasJob,
@@ -1105,6 +1104,7 @@ def SaveGame():
         "LivingID": LivingID,
         "LivingBools": LivingBools,
         "ShopID": ShopID
+
     }
     with io.open('GameSaveFile.json', 'w', encoding='utf8') as outfile:
         str_ = json.dumps(data,
