@@ -133,7 +133,7 @@ LivingButtonIMG = {
 }
 
 ### Shop Variables ###
-#~~ Shop - Foods ~~#
+# ~~ Shop - Foods ~~#
 ShopID = 0
 HasFood = False
 ShopList = {0: "Beg for Food",
@@ -188,20 +188,20 @@ ShopListSleepDecrease = {0: 7,
                          5: 27,
                          6: 31
                          }
-#~~ Shop - Sleep Items ~~#
+# ~~ Shop - Sleep Items ~~#
 Shop_Sleep_ID = 0
-Shop_SleepList = {0: "Sleeping Bag",
+Shop_SleepList = {0: "No Bed",
                   1: "Twin Bed",
                   2: "Full Bed",
                   3: "Queen Bed",
                   4: "King Bed"
                   }
-Shop_SleepListCost = {0: 100,
-                      1: 1000,
-                      2: 10000,
-                      3: 100000,
-                      4: 1000000}
-Shop_SleepListUnlockedBools = {0: False,
+Shop_SleepListCost = {0: 0,
+                      1: 100,
+                      2: 1000,
+                      3: 10000,
+                      4: 100000}
+Shop_SleepListUnlockedBools = {0: True,
                                1: False,
                                2: False,
                                3: False,
@@ -620,7 +620,6 @@ class Work:
         global HasJob
         global JobID
         global JobList
-        global JobListButtonIMG
         global PlayerCharacter
         global LivingID
         global JobListBools
@@ -789,7 +788,7 @@ class Sleep:
                 if PlayerCharacter.max_exhaustion - PlayerCharacter.exhaustion < Sleep_Increase:
                     PlayerCharacter.exhaustion = PlayerCharacter.max_exhaustion
                 else:
-                    PlayerCharacter.exhaustion += Sleep_Increase + (Shop_Sleep_ID*.75)
+                    PlayerCharacter.exhaustion += Sleep_Increase + (Shop_Sleep_ID * .75)
 
                 # Adjusts Health
                 if PlayerCharacter.max_hp - PlayerCharacter.hp < Sleep_Increase_HP:
@@ -810,9 +809,9 @@ class Sleep:
 
         # draw button
         self.surface.blit(self.image, (self.rect.x, self.rect.y))
-        font = pygame.font.SysFont('Times New Roman', fit_text_to_width("Sleep", pygame.Color('black'), 105))
+        font = pygame.font.SysFont('Times New Roman', 28)
         text = font.render("Sleep", True, Font_ActiveTextColor)
-        text_rect = text.get_rect(center=(self.x + self.size_x / 2, self.y + 15))
+        text_rect = text.get_rect(center=(self.x + self.size_x / 2, self.y + 25))
         self.surface.blit(text, text_rect)
 
 
@@ -850,19 +849,22 @@ class ShopFood:
                 if ShopFoodListUnlockBools[self.FoodID]:
                     subText = subFont.render("Unlocked", True, Font_ActiveTextColor)
                 else:
-                    subText = subFont.render("${:,}".format(ShopFoodListUnlockCost[self.FoodID]), True, Font_ActiveTextColor)
+                    subText = subFont.render("${:,}".format(ShopFoodListUnlockCost[self.FoodID]), True,
+                                             Font_ActiveTextColor)
             else:
                 text = font.render(ShopList[self.FoodID], True, Font_InActiveTextColor)
                 if ShopFoodListUnlockBools[self.FoodID]:
                     subText = subFont.render("Unlocked", True, Font_InActiveTextColor)
                 else:
-                    subText = subFont.render("${:,}".format(ShopFoodListUnlockCost[self.FoodID]), True, Font_InActiveTextColor)
+                    subText = subFont.render("${:,}".format(ShopFoodListUnlockCost[self.FoodID]), True,
+                                             Font_InActiveTextColor)
         else:
             text = font.render(ShopList[self.FoodID], True, Font_InActiveTextColor)
             if ShopFoodListUnlockBools[self.FoodID]:
                 subText = subFont.render("Unlocked", True, Font_InActiveTextColor)
             else:
-                subText = subFont.render("${:,}".format(ShopFoodListUnlockCost[self.FoodID]), True, Font_InActiveTextColor)
+                subText = subFont.render("${:,}".format(ShopFoodListUnlockCost[self.FoodID]), True,
+                                         Font_InActiveTextColor)
         # check mouseover and clicked conditions
         if self.rect.collidepoint(pos):
             if pygame.mouse.get_pressed()[0] == 1 and isClicked == False:
@@ -870,7 +872,8 @@ class ShopFood:
                 isClicked = True
 
                 if not HasFood and ShopID == 0 or not HasFood and ShopFoodListUnlockBools[self.FoodID]:
-                    if PlayerCharacter.cash >= ShopFoodListUnlockCost[self.FoodID] or ShopFoodListUnlockBools[self.FoodID]:
+                    if PlayerCharacter.cash >= ShopFoodListUnlockCost[self.FoodID] or ShopFoodListUnlockBools[
+                        self.FoodID]:
                         HasFood = True
                         ShopID = self.FoodID
                         if not ShopFoodListUnlockBools[self.FoodID]:
@@ -880,7 +883,8 @@ class ShopFood:
                         fly_text = FlyText(165, 20, str("Not Enough Cash"), pygame.Color('black'))
                         fly_text_group.add(fly_text)
                 elif HasFood and ShopID != self.FoodID:
-                    fly_text = FlyText(GameWindowWidth / 2, 100, str("Please uncheck your current food"), pygame.Color('black'))
+                    fly_text = FlyText(GameWindowWidth / 2, 100, str("Please uncheck your current food"),
+                                       pygame.Color('black'))
                     fly_text_group.add(fly_text)
                 else:
                     HasFood = False
@@ -922,13 +926,17 @@ class ShopBed:
         global Shop_SleepListCost
         global Shop_SleepListUnlockedBools
         global Sleep_tick
+        global LivingID
 
-        font = pygame.font.SysFont('Times New Roman', fit_text_to_width(Shop_SleepList[self.BedID], pygame.Color('black'), 105))
-        subFont = pygame.font.SysFont('Times New Roman', fit_text_to_width("${:,}".format(Shop_SleepListCost[self.BedID]), pygame.Color('black'), 45))
+        font = pygame.font.SysFont('Times New Roman',
+                                   fit_text_to_width(Shop_SleepList[self.BedID], pygame.Color('black'), 105))
+        subFont = pygame.font.SysFont('Times New Roman',
+                                      fit_text_to_width("${:,}".format(Shop_SleepListCost[self.BedID]),
+                                                        pygame.Color('black'), 45))
 
-        if PlayerCharacter.cash >= Shop_SleepListCost[self.BedID]:
+        if PlayerCharacter.cash >= Shop_SleepListCost[self.BedID] and LivingID > 0:
             text = font.render(Shop_SleepList[self.BedID], True, Font_ActiveTextColor)
-            subText = subFont.render( "${:,}".format(Shop_SleepListCost[self.BedID]), True, Font_ActiveTextColor)
+            subText = subFont.render("${:,}".format(Shop_SleepListCost[self.BedID]), True, Font_ActiveTextColor)
         else:
             text = font.render(Shop_SleepList[self.BedID], True, Font_InActiveTextColor)
             subText = subFont.render("${:,}".format(Shop_SleepListCost[self.BedID]), True, Font_InActiveTextColor)
@@ -937,15 +945,21 @@ class ShopBed:
             if pygame.mouse.get_pressed()[0] == 1 and isClicked == False:
                 # code here
                 isClicked = True
-                if Shop_Sleep_ID < self.BedID and PlayerCharacter.cash >= Shop_SleepListCost[self.BedID]:
-                    Shop_Sleep_ID = self.BedID
-                    Shop_SleepListUnlockedBools[self.BedID] = True
-                    PlayerCharacter.cash -= Shop_SleepListCost[self.BedID]
-                    Sleep_tick += self.SleepTickMod
-                    PlayerCharacter.max_exhaustion += self.MaxSleepMod
-                    Shop_SleepListUnlockedBools[self.BedID] = True
+                if LivingID > 0:
+                    if Shop_Sleep_ID < self.BedID and PlayerCharacter.cash >= Shop_SleepListCost[self.BedID]:
+                        Shop_Sleep_ID = self.BedID
+                        Shop_SleepListUnlockedBools[self.BedID] = True
+                        Shop_SleepListUnlockedBools[self.BedID - 1] = False
+                        PlayerCharacter.cash -= Shop_SleepListCost[self.BedID]
+                        Sleep_tick += self.SleepTickMod
+                        PlayerCharacter.max_exhaustion += self.MaxSleepMod
+                        Shop_SleepListUnlockedBools[self.BedID] = True
+                    else:
+                        fly_text = FlyText(150, 15, str("Need More Cash"), pygame.Color('black'))
+                        fly_text_group.add(fly_text)
+                        isClicked = True
                 else:
-                    fly_text = FlyText(150, 15, str("Need More Cash"),pygame.Color('black'))
+                    fly_text = FlyText(150, 15, str("Need A Place to Live First"), pygame.Color('black'))
                     fly_text_group.add(fly_text)
                     isClicked = True
 
@@ -960,6 +974,7 @@ class ShopBed:
                                                 self.y + 35))
         self.surface.blit(text, text_rect)
         self.surface.blit(subText, subText_rect)
+
 
 """        
 GUI Classes
@@ -1192,6 +1207,8 @@ def LoadGame():
     global Sleep_Decrease_Food
     global HasFood
     global ShopFoodListUnlockBools
+    global Shop_SleepListUnlockedBools
+    global Shop_Sleep_ID
 
     PlayerCharacter = CreateCharacter()
 
@@ -1220,6 +1237,8 @@ def LoadGame():
         Sleep_Increase_HP = data["Sleep_Increase_HP"]
         Sleep_Decrease_Food = data["Sleep_Decrease_Food"]
         ShopFoodListUnlockBools = data["ShopFoodListUnlockBools"]
+        Shop_SleepListUnlockedBools = data["Shop_SleepListUnlockedBools"]
+        Shop_Sleep_ID = data["Shop_Sleep_ID"]
 
         # screen = pygame.display.set_mode((GameWindowWidth, GameWindowHeight))
         print("Loaded Variables")
@@ -1230,6 +1249,7 @@ def LoadGame():
         LivingBools = {int(k): v for k, v in LivingBools.items()}
         JobListBools = {int(k): v for k, v in JobListBools.items()}
         ShopFoodListUnlockBools = {int(k): v for k, v in ShopFoodListUnlockBools.items()}
+        Shop_SleepListUnlockedBools = {int(k): v for k, v in Shop_SleepListUnlockedBools.items()}
         print("Loaded Dictionary Variables")
     except:
         print("Failed to change dictionary")
@@ -1259,7 +1279,9 @@ def SaveGame():
         "LivingBools": LivingBools,
         "ShopID": ShopID,
         "HasFood": HasFood,
-        "ShopFoodListUnlockBools": ShopFoodListUnlockBools
+        "ShopFoodListUnlockBools": ShopFoodListUnlockBools,
+        "Shop_Sleep_ID": Shop_Sleep_ID,
+        "Shop_SleepListUnlockedBools": Shop_SleepListUnlockedBools
 
     }
     with io.open('GameSaveFile.json', 'w', encoding='utf8') as outfile:
@@ -1284,8 +1306,15 @@ def ResetStats():
     global JobID
     global JobListBools
     global ShopID
+    global ShopFoodListUnlockBools
     global CurrentJob
     global CurrentLiving
+    global Shop_Sleep_ID
+    global Shop_SleepListUnlockedBools
+    global Sleep_tick
+    global HP_tick
+    global Food_tick
+
     PlayerCharacter.hp = 100
     PlayerCharacter.max_hp = 100
     PlayerCharacter.food = 100
@@ -1321,6 +1350,22 @@ def ResetStats():
         8: False
     }
     ShopID = 0
+    ShopFoodListUnlockBools = {0: True,
+                               1: False,
+                               2: False,
+                               3: False,
+                               4: False,
+                               5: False,
+                               6: False}
+    Shop_Sleep_ID = 0
+    Shop_SleepListUnlockedBools = {0: True,
+                                   1: False,
+                                   2: False,
+                                   3: False,
+                                   4: False}
+    Sleep_tick = 0.025
+    Food_tick = 0.025
+    HP_tick = 0.025
 
 
 LoadGame()
@@ -1347,15 +1392,23 @@ BTN_Sleep = Sleep(screen, player_exhaustion_bar.x, player_exhaustion_bar.y + 50,
 Work_button = Work(screen, player_health_bar.x, player_health_bar.y + 60,
                    BTN_Empty_IMG, 150, 50)
 
+#### SHOP BUTTONS #####
 # Creates the Food Buttons
 BTN_Food_Beg = Food(screen, player_food_bar.x, player_food_bar.y + 60, BTN_Empty_IMG, 150, 50, 0,
                     ShopListFoodIncrease[ShopID], ShopListHPIncrease[ShopID], ShopListSleepDecrease[ShopID])
-BTN_Food_Corndog = ShopFood(screen, 50, 100, BTN_Empty_IMG, 150, 50, 1)
-BTN_Food_Burger = ShopFood(screen, 50, 160, BTN_Empty_IMG, 150, 50, 2)
-BTN_Food_Fried_Chicken = ShopFood(screen, 50, 220, BTN_Empty_IMG, 150, 50, 3)
-BTN_Food_Spaghetti = ShopFood(screen, 50, 280, BTN_Empty_IMG, 150, 50, 4)
-BTN_Food_Lasagna = ShopFood(screen, 50, 340, BTN_Empty_IMG, 150, 50, 5)
-BTN_Food_Steak = ShopFood(screen, 50, 400, BTN_Empty_IMG, 150, 50, 6)
+xstart = 50
+ystart = 100
+BTN_Food_Corndog = ShopFood(screen, xstart, ystart, BTN_Empty_IMG, 150, 50, 1)
+BTN_Food_Burger = ShopFood(screen, xstart, ystart + 60, BTN_Empty_IMG, 150, 50, 2)
+BTN_Food_Fried_Chicken = ShopFood(screen, xstart, ystart + 120, BTN_Empty_IMG, 150, 50, 3)
+BTN_Food_Spaghetti = ShopFood(screen, xstart, ystart + 180, BTN_Empty_IMG, 150, 50, 4)
+BTN_Food_Lasagna = ShopFood(screen, xstart, ystart + 240, BTN_Empty_IMG, 150, 50, 5)
+BTN_Food_Steak = ShopFood(screen, xstart, ystart + 300, BTN_Empty_IMG, 150, 50, 6)
+# Beds #
+BTN_Bed_Twin = ShopBed(screen, 225, 100, BTN_Empty_IMG, 150, 50, 1, -.001, 10)
+BTN_Bed_Full = ShopBed(screen, 225, 100, BTN_Empty_IMG, 150, 50, 2, -.002, 15)
+BTN_Bed_Queen = ShopBed(screen, 225, 100, BTN_Empty_IMG, 150, 50, 3, -.003, 20)
+BTN_Bed_King = ShopBed(screen, 225, 100, BTN_Empty_IMG, 150, 50, 4, -.004, 25)
 
 # Creates House buttons
 BTN_apartment_starter = House(screen, player_health_bar.x,
@@ -1428,7 +1481,7 @@ while GameRunning:
             ResetStats()
 
         if not PauseTicking:
-            if PlayerCharacter.exhaustion > 0:
+            if 0 < PlayerCharacter.exhaustion <= PlayerCharacter.max_exhaustion:
                 PlayerCharacter.exhaustion -= Sleep_tick
             else:
                 PlayerCharacter.hp -= HP_Decrease
@@ -1476,10 +1529,10 @@ while GameRunning:
         player_exhaustion_bar.draw(PlayerCharacter.exhaustion)
         DayProgressBar.draw()
         BTN_Sleep.draw()
-        # food_hotdog_button.draw()
+        draw_text_centered("Current Bed", pygame.font.SysFont('Times New Roman', 20) , pygame.Color('black'), 750, BTN_Sleep.y + 60)
+        draw_text_centered(str(Shop_SleepList[Shop_Sleep_ID]), pygame.font.SysFont('Times New Roman', 15),pygame.Color('black'), 750, BTN_Sleep.y + 85)
         Work_button.draw()
         BTN_Food_Beg.draw()
-        # food_hamburger_button.draw()
         BTN_Shop.draw()
         BTN_Jobs.draw()
         BTN_Housing.draw()
@@ -1494,7 +1547,7 @@ while GameRunning:
                            font, pygame.Color('black'), GameWindowWidth / 2,
                            15)
         draw_text("Current Food: " + ShopList[ShopID], pygame.font.SysFont('Times New Roman', 20),
-                           pygame.Color('black'), 100, 35)
+                  pygame.Color('black'), 100, 35)
         BTN_Food_Corndog.draw()
         BTN_Food_Burger.draw()
         BTN_Food_Fried_Chicken.draw()
@@ -1502,10 +1555,16 @@ while GameRunning:
         BTN_Food_Lasagna.draw()
         BTN_Food_Steak.draw()
 
-        draw_text_centered("Coming Soon",
-                           pygame.font.SysFont('Times New Roman', 25),
-                           pygame.Color('black'), GameWindowWidth / 2,
-                           GameWindowHeight / 2)
+        if Shop_SleepListUnlockedBools[0]:
+            BTN_Bed_Twin.draw()
+        elif Shop_SleepListUnlockedBools[1]:
+            BTN_Bed_Full.draw()
+        elif Shop_SleepListUnlockedBools[2]:
+            BTN_Bed_Queen.draw()
+        elif Shop_SleepListUnlockedBools[3]:
+            BTN_Bed_King.draw()
+        else:
+            draw_text("No New Beds", pygame.font.SysFont('Times New Roman', 25), pygame.Color('black'), 225, 108)
 
     elif MenuState == "housing":
         BTN_Home.draw()
