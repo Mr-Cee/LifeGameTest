@@ -56,7 +56,6 @@ Font_ActiveTextColor = (0, 0, 0)
 Font_InActiveTextColor = (125, 125, 125)
 
 ### Load Images ###
-
 BTN_Empty_IMG = pygame.image.load(
     'Images/Icons/img_button_blank.png').convert_alpha()
 
