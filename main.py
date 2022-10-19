@@ -11,10 +11,7 @@ import io
 
 locale.setlocale(locale.LC_ALL, '')
 locale.currency(12345, grouping=True)
-try:
-    to_unicode = unicode
-except NameError:
-    to_unicode = str
+to_unicode = str
 
 # Variables
 global PlayerCharacter
@@ -1397,7 +1394,7 @@ Work_button = Work(screen, player_health_bar.x, player_health_bar.y + 60,
 BTN_Food_Beg = Food(screen, player_food_bar.x, player_food_bar.y + 60, BTN_Empty_IMG, 150, 50, 0,
                     ShopListFoodIncrease[ShopID], ShopListHPIncrease[ShopID], ShopListSleepDecrease[ShopID])
 xstart = 50
-ystart = 100
+ystart = 140
 BTN_Food_Corndog = ShopFood(screen, xstart, ystart, BTN_Empty_IMG, 150, 50, 1)
 BTN_Food_Burger = ShopFood(screen, xstart, ystart + 60, BTN_Empty_IMG, 150, 50, 2)
 BTN_Food_Fried_Chicken = ShopFood(screen, xstart, ystart + 120, BTN_Empty_IMG, 150, 50, 3)
@@ -1405,10 +1402,12 @@ BTN_Food_Spaghetti = ShopFood(screen, xstart, ystart + 180, BTN_Empty_IMG, 150, 
 BTN_Food_Lasagna = ShopFood(screen, xstart, ystart + 240, BTN_Empty_IMG, 150, 50, 5)
 BTN_Food_Steak = ShopFood(screen, xstart, ystart + 300, BTN_Empty_IMG, 150, 50, 6)
 # Beds #
-BTN_Bed_Twin = ShopBed(screen, 225, 100, BTN_Empty_IMG, 150, 50, 1, -.001, 10)
-BTN_Bed_Full = ShopBed(screen, 225, 100, BTN_Empty_IMG, 150, 50, 2, -.002, 15)
-BTN_Bed_Queen = ShopBed(screen, 225, 100, BTN_Empty_IMG, 150, 50, 3, -.003, 20)
-BTN_Bed_King = ShopBed(screen, 225, 100, BTN_Empty_IMG, 150, 50, 4, -.004, 25)
+xstart = 300
+ystart = 100
+BTN_Bed_Twin = ShopBed(screen, xstart, ystart, BTN_Empty_IMG, 150, 50, 1, -.001, 10)
+BTN_Bed_Full = ShopBed(screen, xstart, ystart, BTN_Empty_IMG, 150, 50, 2, -.002, 15)
+BTN_Bed_Queen = ShopBed(screen, xstart, ystart, BTN_Empty_IMG, 150, 50, 3, -.003, 20)
+BTN_Bed_King = ShopBed(screen, xstart, ystart, BTN_Empty_IMG, 150, 50, 4, -.004, 25)
 
 # Creates House buttons
 BTN_apartment_starter = House(screen, player_health_bar.x,
