@@ -58,7 +58,6 @@ Font_InActiveTextColor = (125, 125, 125)
 ### Load Images ###
 BTN_Empty_IMG = pygame.image.load(
     'Images/Icons/img_button_blank.png').convert_alpha()
-
 # Load Housing Images
 BTN_apartment_starter_img = pygame.image.load(
     'Images/Icons/img_apartment_starter_inactive.png').convert_alpha()
