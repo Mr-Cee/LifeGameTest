@@ -896,6 +896,86 @@ class ShopFood:
         self.surface.blit(subText, subText_rect)
 
 
+class ShopBed:
+    def __init__(self, surface, x, y, image, size_x, size_y, BedID):
+        self.image = pygame.transform.scale(image, (size_x, size_y))
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (x, y)
+        self.clicked = False
+        self.surface = surface
+        self.size_x = size_x
+        self.size_y = size_y
+        self.x = x
+        self.y = y
+        self.BedID = BedID
+
+    def draw(self):
+        # get mouse position
+        pos = pygame.mouse.get_pos()
+        global isClicked
+        global PlayerCharacter
+        global ShopID
+        global ShopList
+        global ShopListCost
+        global ShopFoodListUnlockCost
+        global ShopFoodListUnlockBools
+        global HasFood
+
+        font = pygame.font.SysFont('Times New Roman', 18)
+        subFont = pygame.font.SysFont('Times New Roman', 15)
+
+        if PlayerCharacter.cash >= ShopFoodListUnlockCost[self.BedID] or ShopFoodListUnlockBools[self.BedID]:
+            if ShopID == 0 or ShopID == self.BedID:
+                text = font.render(ShopList[self.BedID], True, Font_ActiveTextColor)
+                if ShopFoodListUnlockBools[self.BedID]:
+                    subText = subFont.render("Unlocked", True, Font_ActiveTextColor)
+                else:
+                    subText = subFont.render("${:,}".format(ShopFoodListUnlockCost[self.BedID]), True, Font_ActiveTextColor)
+            else:
+                text = font.render(ShopList[self.BedID], True, Font_InActiveTextColor)
+                if ShopFoodListUnlockBools[self.BedID]:
+                    subText = subFont.render("Unlocked", True, Font_InActiveTextColor)
+                else:
+                    subText = subFont.render("${:,}".format(ShopFoodListUnlockCost[self.BedID]), True, Font_InActiveTextColor)
+        else:
+            text = font.render(ShopList[self.BedID], True, Font_InActiveTextColor)
+            if ShopFoodListUnlockBools[self.BedID]:
+                subText = subFont.render("Unlocked", True, Font_InActiveTextColor)
+            else:
+                subText = subFont.render("${:,}".format(ShopFoodListUnlockCost[self.BedID]), True, Font_InActiveTextColor)
+        # check mouseover and clicked conditions
+        if self.rect.collidepoint(pos):
+            if pygame.mouse.get_pressed()[0] == 1 and isClicked == False:
+                # code here
+                isClicked = True
+
+                if not HasFood and ShopID == 0 or not HasFood and ShopFoodListUnlockBools[self.BedID]:
+                    if PlayerCharacter.cash >= ShopFoodListUnlockCost[self.BedID] or ShopFoodListUnlockBools[self.BedID]:
+                        HasFood = True
+                        ShopID = self.BedID
+                        if not ShopFoodListUnlockBools[self.BedID]:
+                            ShopFoodListUnlockBools[self.BedID] = True
+                            PlayerCharacter.cash -= ShopFoodListUnlockCost[self.BedID]
+                    else:
+                        fly_text = FlyText(165, 20, str("Not Enough Cash"), pygame.Color('black'))
+                        fly_text_group.add(fly_text)
+                elif HasFood and ShopID != self.BedID:
+                    fly_text = FlyText(GameWindowWidth / 2, 100, str("Please uncheck your current food"), pygame.Color('black'))
+                    fly_text_group.add(fly_text)
+                else:
+                    HasFood = False
+                    ShopID = 0
+
+        if pygame.mouse.get_pressed()[0] == 0:
+            isClicked = False
+
+        # draw button
+        self.surface.blit(self.image, (self.rect.x, self.rect.y))
+        text_rect = text.get_rect(center=(self.x + self.size_x / 2, self.y + 15))
+        subText_rect = subText.get_rect(center=(self.x + self.size_x / 2, self.y + 35))
+        self.surface.blit(text, text_rect)
+        self.surface.blit(subText, subText_rect)
+
 """        
 GUI Classes
 """
