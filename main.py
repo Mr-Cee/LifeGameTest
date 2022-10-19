@@ -1476,13 +1476,13 @@ while GameRunning:
         draw_text_centered("Current Stats",
                            pygame.font.SysFont('Times New Roman', 25),
                            pygame.Color('black'), 623, 100)
-        draw_text("HP Decrease Rate: " + str(round(HP_tick * -1, 3)),
+        draw_text("HP Decrease Rate: " + str(round(HP_tick * -1 * 60, 1)),
                   pygame.font.SysFont('Times New Roman', 20),
                   pygame.Color('black'), 475, 150)
-        draw_text("Food Decrease Rate: " + str(round(Food_tick * -1, 3)),
+        draw_text("Food Decrease Rate: " + str(round(Food_tick * -1 * 60, 1)),
                   pygame.font.SysFont('Times New Roman', 20),
                   pygame.Color('black'), 475, 175)
-        draw_text("Sleep Decrease Rate: " + str(round(Sleep_tick * -1, 3)),
+        draw_text("Sleep Decrease Rate: " + str(round(Sleep_tick * -1 * 60, 1)),
                   pygame.font.SysFont('Times New Roman', 20),
                   pygame.Color('black'), 475, 200)
 
