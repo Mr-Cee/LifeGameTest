@@ -160,21 +160,36 @@ LivingButtonIMG = {
 
 # Shop Variables
 ShopID = 0
-ShopList = {0 : "Beg for Food",
-            1 : "Corn Dog",
-            2 : "Burger",
-            3 : "Fried Chicken",
-            4 : "Spaghetti",
-            5 : "Lasagna",
-            6 : "Steak"}
+HasFood = False
+ShopList = {0: "Beg for Food",
+            1: "Corn Dog",
+            2: "Burger",
+            3: "Fried Chicken",
+            4: "Spaghetti",
+            5: "Lasagna",
+            6: "Steak"}
 
-ShopListCost = {0 : 0,
-                1 : 3,
-                2 : 10,
-                3 : 50,
-                4 : 200,
-                5 : 1000,
-                6 : 5000}
+ShopListCost = {0: 0,
+                1: 3,
+                2: 10,
+                3: 50,
+                4: 200,
+                5: 1000,
+                6: 5000}
+ShopFoodListUnlockCost = {0: 0,
+                          1: 100,
+                          2: 5000,
+                          3: 10000,
+                          4: 50000,
+                          5: 100000,
+                          6: 500000}
+ShopFoodListUnlockBools = {0: True,
+                           1: False,
+                           2: False,
+                           3: False,
+                           4: False,
+                           5: False,
+                           6: False}
 ShopListHPIncrease = {0: 5,
                       1: 8,
                       2: 11,
@@ -192,13 +207,13 @@ ShopListFoodIncrease = {0: 10,
                         6: 40
                         }
 ShopListSleepDecrease = {0: 7,
-                        1: 11,
-                        2: 15,
-                        3: 19,
-                        4: 23,
-                        5: 27,
-                        6: 31
-                        }
+                         1: 11,
+                         2: 15,
+                         3: 19,
+                         4: 23,
+                         5: 27,
+                         6: 31
+                         }
 # Job Variables
 CurrentJob = "Jobless"
 HasJob = False
@@ -269,6 +284,7 @@ Food_Increase = 25
 Food_tick = .025
 Food_Work_Decrease = 10
 Sleep_Decrease_Food = 5
+
 
 class Person:
 
@@ -405,9 +421,11 @@ class ExhaustionBar:
         title = font.render("Exhaustion", True, pygame.Color('black'))
         screen.blit(title, (self.x + 25, self.y - 25))
 
+
 """"        
 Object Classes
 """
+
 
 class House:
 
@@ -416,10 +434,8 @@ class House:
         self.image = pygame.transform.scale(image, (size_x, size_y))
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
-        #self.rect.center = (x + size_x/2, y + size_y/2)
         self.clicked = False
         self.surface = surface
-        #self.buttonText = ButtonText
         self.size_x = size_x
         self.size_y = size_y
         self.x = x
@@ -473,7 +489,7 @@ class House:
                 # code here
                 isClicked = True
                 if LivingID < self.HouseID and PlayerCharacter.cash >= LivingIDCost[
-                        self.HouseID]:
+                    self.HouseID]:
                     LivingID = self.HouseID
                     CurrentLiving = LivingIDList[LivingID]
                     LivingBools[LivingID] = True
@@ -496,7 +512,6 @@ class House:
 
         # draw button
         self.surface.blit(self.image, (self.rect.x, self.rect.y))
-        #text = font.render(LivingIDList[self.HouseID], True, Font_InActiveTextColor)
         text_rect = text.get_rect(center=(self.x + self.size_x / 2,
                                           self.y + 15))
         subText_rect = subText.get_rect(center=(self.x + self.size_x / 2,
@@ -511,10 +526,10 @@ class Job:
         self.image = pygame.transform.scale(image, (size_x, size_y))
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
-        #self.rect.center = (x + size_x/2, y + size_y/2)
+        # self.rect.center = (x + size_x/2, y + size_y/2)
         self.clicked = False
         self.surface = surface
-        #self.buttonText = ButtonText
+        # self.buttonText = ButtonText
         self.size_x = size_x
         self.size_y = size_y
         self.x = x
@@ -586,7 +601,7 @@ class Job:
 
         # draw button
         self.surface.blit(self.image, (self.rect.x, self.rect.y))
-        #text = font.render(LivingIDList[self.HouseID], True, Font_InActiveTextColor)
+        # text = font.render(LivingIDList[self.HouseID], True, Font_InActiveTextColor)
         text_rect = text.get_rect(center=(self.x + self.size_x / 2,
                                           self.y + 15))
         subText_rect = subText.get_rect(center=(self.x + self.size_x / 2,
@@ -699,7 +714,6 @@ class Food:
         self.HPIncrease = HPIncrease
         self.sleepDecrease = sleepDecrease
 
-
     def draw(self):
         # get mouse position
         pos = pygame.mouse.get_pos()
@@ -707,8 +721,11 @@ class Food:
         global ShopList
         global ShopID
 
-        font = pygame.font.SysFont('Times New Roman', fit_text_to_width("Eat " + ShopList[ShopID], pygame.Color('black'), 105))
-        subfont = pygame.font.SysFont('Times New Roman', fit_text_to_width("${:,}".format(ShopListCost[ShopID]), pygame.Color('black'), 30))
+        font = pygame.font.SysFont('Times New Roman',
+                                   fit_text_to_width("Eat " + ShopList[ShopID], pygame.Color('black'), 105))
+        subfont = pygame.font.SysFont('Times New Roman',
+                                      fit_text_to_width("${:,}".format(ShopListCost[ShopID]), pygame.Color('black'),
+                                                        30))
 
         if ShopID > 0:
             text = font.render("Eat " + ShopList[ShopID], True, Font_ActiveTextColor)
@@ -814,6 +831,87 @@ class Sleep:
         text = font.render("Sleep", True, Font_ActiveTextColor)
         text_rect = text.get_rect(center=(self.x + self.size_x / 2, self.y + 15))
         self.surface.blit(text, text_rect)
+
+
+class ShopFood:
+    def __init__(self, surface, x, y, image, size_x, size_y, FoodID):
+        self.image = pygame.transform.scale(image, (size_x, size_y))
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (x, y)
+        self.clicked = False
+        self.surface = surface
+        self.size_x = size_x
+        self.size_y = size_y
+        self.x = x
+        self.y = y
+        self.FoodID = FoodID
+
+    def draw(self):
+        # get mouse position
+        pos = pygame.mouse.get_pos()
+        global isClicked
+        global PlayerCharacter
+        global ShopID
+        global ShopList
+        global ShopListCost
+        global ShopFoodListUnlockCost
+        global ShopFoodListUnlockBools
+        global HasFood
+
+        font = pygame.font.SysFont('Times New Roman', 18)
+        subFont = pygame.font.SysFont('Times New Roman', 15)
+
+        if PlayerCharacter.cash >= ShopFoodListUnlockCost[self.FoodID] or ShopFoodListUnlockBools[self.FoodID]:
+            if ShopID == 0 or ShopID == self.FoodID:
+                text = font.render(ShopList[self.FoodID], True, Font_ActiveTextColor)
+                if ShopFoodListUnlockBools[self.FoodID]:
+                    subText = subFont.render("Unlocked", True, Font_ActiveTextColor)
+                else:
+                    subText = subFont.render("${:,}".format(ShopFoodListUnlockCost[self.FoodID]), True, Font_ActiveTextColor)
+            else:
+                text = font.render(ShopList[self.FoodID], True, Font_InActiveTextColor)
+                if ShopFoodListUnlockBools[self.FoodID]:
+                    subText = subFont.render("Unlocked", True, Font_InActiveTextColor)
+                else:
+                    subText = subFont.render("${:,}".format(ShopFoodListUnlockCost[self.FoodID]), True, Font_InActiveTextColor)
+        else:
+            text = font.render(ShopList[self.FoodID], True, Font_InActiveTextColor)
+            if ShopFoodListUnlockBools[self.FoodID]:
+                subText = subFont.render("Unlocked", True, Font_InActiveTextColor)
+            else:
+                subText = subFont.render("${:,}".format(ShopFoodListUnlockCost[self.FoodID]), True, Font_InActiveTextColor)
+        # check mouseover and clicked conditions
+        if self.rect.collidepoint(pos):
+            if pygame.mouse.get_pressed()[0] == 1 and isClicked == False:
+                # code here
+                isClicked = True
+
+                if not HasFood and ShopID == 0 or not HasFood and ShopFoodListUnlockBools[self.FoodID]:
+                    if PlayerCharacter.cash >= ShopFoodListUnlockCost[self.FoodID] or ShopFoodListUnlockBools[self.FoodID]:
+                        HasFood = True
+                        ShopID = self.FoodID
+                        if not ShopFoodListUnlockBools[self.FoodID]:
+                            ShopFoodListUnlockBools[self.FoodID] = True
+                            PlayerCharacter.cash -= ShopFoodListUnlockCost[self.FoodID]
+                    else:
+                        fly_text = FlyText(165, 20, str("Not Enough Cash"), pygame.Color('black'))
+                        fly_text_group.add(fly_text)
+                elif HasFood and ShopID != self.FoodID:
+                    fly_text = FlyText(GameWindowWidth / 2, 100, str("Please uncheck your current food"), pygame.Color('black'))
+                    fly_text_group.add(fly_text)
+                else:
+                    HasFood = False
+                    ShopID = 0
+
+        if pygame.mouse.get_pressed()[0] == 0:
+            isClicked = False
+
+        # draw button
+        self.surface.blit(self.image, (self.rect.x, self.rect.y))
+        text_rect = text.get_rect(center=(self.x + self.size_x / 2, self.y + 15))
+        subText_rect = subText.get_rect(center=(self.x + self.size_x / 2, self.y + 35))
+        self.surface.blit(text, text_rect)
+        self.surface.blit(subText, subText_rect)
 
 
 """        
@@ -973,7 +1071,7 @@ class Button_Home:
 class FlyText(pygame.sprite.Sprite):
 
     def __init__(self, x, y, text, colour):
-        #def __init__(self, x, y, text, colour):
+        # def __init__(self, x, y, text, colour):
         pygame.sprite.Sprite.__init__(self)
         self.image = font.render(text, True, colour)
         self.rect = self.image.get_rect()
@@ -982,7 +1080,7 @@ class FlyText(pygame.sprite.Sprite):
 
     def update(self):
         # move damage text up
-        #self.rect.y -= .5
+        # self.rect.y -= .5
         # delete the text after a few seconds
 
         self.counter += 1
@@ -993,7 +1091,7 @@ class FlyText(pygame.sprite.Sprite):
 def draw_BG():
     screen.fill(light_gray)
     # screen.blit(background_img,(0, 0))
-    #GameWindow.fill(light_gray)
+    # GameWindow.fill(light_gray)
 
 
 def draw_text(text, font, text_col, x, y):
@@ -1012,7 +1110,7 @@ def fit_text_to_width(text, color, pixels, font_face=None):
     text_surface = font.render(text, True, color)
     size = text_surface.get_size()
     size = (pixels, int(size[1] * pixels / size[0]))
-    #return pygame.transform.scale(text_surface, size)
+    # return pygame.transform.scale(text_surface, size)
     return size[1]
 
 
@@ -1043,6 +1141,10 @@ def LoadGame():
     global LivingID
     global LivingBools
     global ShopID
+    global Sleep_Increase_HP
+    global Sleep_Decrease_Food
+    global HasFood
+    global ShopFoodListUnlockBools
 
     PlayerCharacter = CreateCharacter()
 
@@ -1067,6 +1169,10 @@ def LoadGame():
         LivingID = data["LivingID"]
         LivingBools = data["LivingBools"]
         ShopID = data["ShopID"]
+        HasFood = data["HasFood"]
+        Sleep_Increase_HP = data["Sleep_Increase_HP"]
+        Sleep_Decrease_Food = data["Sleep_Decrease_Food"]
+        ShopFoodListUnlockBools = data["ShopFoodListUnlockBools"]
 
         # screen = pygame.display.set_mode((GameWindowWidth, GameWindowHeight))
         print("Loaded Variables")
@@ -1076,6 +1182,7 @@ def LoadGame():
     try:
         LivingBools = {int(k): v for k, v in LivingBools.items()}
         JobListBools = {int(k): v for k, v in JobListBools.items()}
+        ShopFoodListUnlockBools = {int(k): v for k, v in ShopFoodListUnlockBools.items()}
         print("Loaded Dictionary Variables")
     except:
         print("Failed to change dictionary")
@@ -1103,7 +1210,9 @@ def SaveGame():
         "CurrentJob": CurrentJob,
         "LivingID": LivingID,
         "LivingBools": LivingBools,
-        "ShopID": ShopID
+        "ShopID": ShopID,
+        "HasFood": HasFood,
+        "ShopFoodListUnlockBools": ShopFoodListUnlockBools
 
     }
     with io.open('GameSaveFile.json', 'w', encoding='utf8') as outfile:
@@ -1192,7 +1301,14 @@ Work_button = Work(screen, player_health_bar.x, player_health_bar.y + 60,
                    BTN_Empty_IMG, 150, 50)
 
 # Creates the Food Buttons
-BTN_Food_Beg = Food(screen, player_food_bar.x, player_food_bar.y + 60, BTN_Empty_IMG, 150, 50, 0, ShopListFoodIncrease[ShopID], ShopListHPIncrease[ShopID], ShopListSleepDecrease[ShopID])
+BTN_Food_Beg = Food(screen, player_food_bar.x, player_food_bar.y + 60, BTN_Empty_IMG, 150, 50, 0,
+                    ShopListFoodIncrease[ShopID], ShopListHPIncrease[ShopID], ShopListSleepDecrease[ShopID])
+BTN_Food_Corndog = ShopFood(screen, 50, 100, BTN_Empty_IMG, 150, 50, 1)
+BTN_Food_Burger = ShopFood(screen, 50, 160, BTN_Empty_IMG, 150, 50, 2)
+BTN_Food_Fried_Chicken = ShopFood(screen, 50, 220, BTN_Empty_IMG, 150, 50, 3)
+BTN_Food_Spaghetti = ShopFood(screen, 50, 280, BTN_Empty_IMG, 150, 50, 4)
+BTN_Food_Lasagna = ShopFood(screen, 50, 340, BTN_Empty_IMG, 150, 50, 5)
+BTN_Food_Steak = ShopFood(screen, 50, 400, BTN_Empty_IMG, 150, 50, 6)
 
 # Creates House buttons
 BTN_apartment_starter = House(screen, player_health_bar.x,
@@ -1313,10 +1429,10 @@ while GameRunning:
         player_exhaustion_bar.draw(PlayerCharacter.exhaustion)
         DayProgressBar.draw()
         BTN_Sleep.draw()
-        #food_hotdog_button.draw()
+        # food_hotdog_button.draw()
         Work_button.draw()
         BTN_Food_Beg.draw()
-        #food_hamburger_button.draw()
+        # food_hamburger_button.draw()
         BTN_Shop.draw()
         BTN_Jobs.draw()
         BTN_Housing.draw()
@@ -1330,7 +1446,14 @@ while GameRunning:
         draw_text_centered("Cash: " + "${:,}".format(PlayerCharacter.cash),
                            font, pygame.Color('black'), GameWindowWidth / 2,
                            15)
-        BTN_Food_Beg.draw()
+        draw_text("Current Food: " + ShopList[ShopID], pygame.font.SysFont('Times New Roman', 20),
+                           pygame.Color('black'), 100, 35)
+        BTN_Food_Corndog.draw()
+        BTN_Food_Burger.draw()
+        BTN_Food_Fried_Chicken.draw()
+        BTN_Food_Spaghetti.draw()
+        BTN_Food_Lasagna.draw()
+        BTN_Food_Steak.draw()
 
         draw_text_centered("Coming Soon",
                            pygame.font.SysFont('Times New Roman', 25),
@@ -1451,7 +1574,7 @@ while GameRunning:
                 else:
                     HP_Token = True
             if event.key == pygame.K_c:
-                #PlayerCharacter.cash += 100
+                # PlayerCharacter.cash += 100
                 Cheat1 = True
 
             if event.key == pygame.K_LSHIFT:
