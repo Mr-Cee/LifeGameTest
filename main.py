@@ -55,21 +55,6 @@ Font_InActiveTextColor = (125, 125, 125)
 ### Load Images ###
 BTN_Empty_IMG = pygame.image.load(
     'Images/Icons/img_button_blank.png').convert_alpha()
-# Load Housing Images
-BTN_apartment_starter_img = pygame.image.load(
-    'Images/Icons/img_apartment_starter_inactive.png').convert_alpha()
-BTN_apartment_starter_img_active = pygame.image.load(
-    'Images/Icons/img_apartment_starter_active.png').convert_alpha()
-BTN_apartment_fancy_img_active = pygame.image.load(
-    'Images/Icons/img_apartment_fancy_active.png').convert_alpha()
-BTN_apartment_fancy_img_inactive = pygame.image.load(
-    'Images/Icons/img_apartment_fancy_inactive.png').convert_alpha()
-BTN_basic_condo_img = pygame.image.load(
-    'Images/Icons/img_button_blank.png').convert_alpha()
-
-# Load Job Buttons
-BTN_test_job_img = pygame.image.load(
-    'Images/Icons/img_blank_button.png').convert_alpha()
 
 # load GUI icons
 Options_img = pygame.image.load('Images/Icons/gear.png').convert_alpha()
