@@ -60,22 +60,6 @@ Font_InActiveTextColor = (125, 125, 125)
 BTN_Empty_IMG = pygame.image.load(
     'Images/Icons/img_button_blank.png').convert_alpha()
 
-# Load Food Images
-BTN_beg_food_img = pygame.image.load(
-    'Images/Icons/button_beg_food_active.png').convert_alpha()
-food_hotdog = pygame.image.load(
-    'Images/Icons/button_hotdog_inactive.png').convert_alpha()
-BTN_hamburger_img = pygame.image.load(
-    'Images/Icons/button_hamburger_inactive.png').convert_alpha()
-
-# Load Bed Images
-sleep_bed_img = pygame.image.load(
-    'Images/Icons/button_sleep_active.png').convert_alpha()
-
-# Load Cash Images
-BTN_beg_img = pygame.image.load(
-    'Images/Icons/button_beg_cash_active.png').convert_alpha()
-
 # Load Housing Images
 BTN_apartment_starter_img = pygame.image.load(
     'Images/Icons/img_apartment_starter_inactive.png').convert_alpha()
@@ -91,14 +75,6 @@ BTN_basic_condo_img = pygame.image.load(
 # Load Job Buttons
 BTN_test_job_img = pygame.image.load(
     'Images/Icons/img_blank_button.png').convert_alpha()
-BTN_Fast_food_Worker_inactive_img = pygame.image.load(
-    'Images/Icons/img_job_fast_food_worker_inactive.png').convert_alpha()
-BTN_Fast_food_Worker_active_img = pygame.image.load(
-    'Images/Icons/img_job_fast_food_worker_active.png').convert_alpha()
-BTN_job_sales_associate_active_img = pygame.image.load(
-    'Images/Icons/img_job_sales_associate_active.png').convert_alpha()
-BTN_job_sales_associate_inactive_img = pygame.image.load(
-    'Images/Icons/img_job_sales_associate_inactive.png').convert_alpha()
 
 # load GUI icons
 Options_img = pygame.image.load('Images/Icons/gear.png').convert_alpha()
@@ -252,14 +228,6 @@ JobListBools = {
     6: False,
     7: False,
     8: False
-}
-JobListButtonIMG = {
-    0: BTN_test_job_img,
-    1: BTN_Fast_food_Worker_inactive_img,
-    2: BTN_job_sales_associate_inactive_img,
-    100: BTN_Fast_food_Worker_active_img,
-    101: BTN_Fast_food_Worker_active_img,
-    102: BTN_job_sales_associate_active_img
 }
 
 # Health Variables
