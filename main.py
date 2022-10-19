@@ -132,7 +132,8 @@ LivingButtonIMG = {
     102: BTN_apartment_fancy_img_active
 }
 
-# Shop Variables
+### Shop Variables ###
+#~~ Shop - Foods ~~#
 ShopID = 0
 HasFood = False
 ShopList = {0: "Beg for Food",
@@ -142,7 +143,6 @@ ShopList = {0: "Beg for Food",
             4: "Spaghetti",
             5: "Lasagna",
             6: "Steak"}
-
 ShopListCost = {0: 0,
                 1: 3,
                 2: 10,
@@ -188,6 +188,23 @@ ShopListSleepDecrease = {0: 7,
                          5: 27,
                          6: 31
                          }
+#~~ Shop - Sleep Items ~~#
+Shop_SleepList = {0: "No Bed",
+                  1: "Twin Bed",
+                  2: "Full Bed",
+                  3: "Queen Bed",
+                  4: "King Bed"
+                  }
+Shop_SleepListCost = {0: 0,
+                      1: 1000,
+                      2: 10000,
+                      3: 100000,
+                      4: 1000000}
+Shop_SleepListUnlockedBools = {0: True,
+                               1: False,
+                               2: False,
+                               3: False,
+                               4: False}
 # Job Variables
 CurrentJob = "Jobless"
 HasJob = False
@@ -511,7 +528,6 @@ class Job:
         global HasJob
         global JobID
         global JobList
-        global JobListButtonIMG
         global PlayerCharacter
         global LivingID
         global JobListBools
