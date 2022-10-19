@@ -13,6 +13,8 @@ locale.setlocale(locale.LC_ALL, '')
 locale.currency(12345, grouping=True)
 to_unicode = str
 
+TestFromReplit = True
+
 # Variables
 global PlayerCharacter
 GameRunning = True
