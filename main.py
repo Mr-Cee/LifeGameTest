@@ -120,14 +120,6 @@ LivingIDCost = {
     7: 2500000,
     8: 10000000
 }
-LivingButtonIMG = {
-    0: BTN_test_job_img,
-    1: BTN_apartment_starter_img,
-    2: BTN_apartment_fancy_img_inactive,
-    100: BTN_apartment_starter_img,
-    101: BTN_apartment_starter_img_active,
-    102: BTN_apartment_fancy_img_active
-}
 
 ### Shop Variables ###
 # ~~ Shop - Foods ~~#
@@ -433,7 +425,6 @@ class House:
         global PlayerCharacter
         global LivingIDList
         global LivingIDCost
-        global LivingButtonIMG
         global LivingID
         global CurrentLiving
         global Sleep_tick
