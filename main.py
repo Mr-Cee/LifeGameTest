@@ -835,7 +835,10 @@ class ShopFood:
             if ShopID == 0 or ShopID == self.FoodID:
                 text = font.render(ShopList[self.FoodID], True, Font_ActiveTextColor)
                 if ShopFoodListUnlockBools[self.FoodID]:
-                    subText = subFont.render("Unlocked", True, Font_ActiveTextColor)
+                    if ShopID == self.FoodID:
+                        subText = subFont.render("In Use", True, Font_ActiveTextColor)
+                    else:
+                        subText = subFont.render("Unlocked", True, Font_ActiveTextColor)
                 else:
                     subText = subFont.render("${:,}".format(ShopFoodListUnlockCost[self.FoodID]), True,
                                              Font_ActiveTextColor)
@@ -868,11 +871,11 @@ class ShopFood:
                             ShopFoodListUnlockBools[self.FoodID] = True
                             PlayerCharacter.cash -= ShopFoodListUnlockCost[self.FoodID]
                     else:
-                        fly_text = FlyText(165, 20, str("Not Enough Cash"), pygame.Color('black'))
+                        fly_text = FlyText(75, 20, str("Not Enough Cash"), pygame.Color('black'))
                         fly_text_group.add(fly_text)
                 elif HasFood and ShopID != self.FoodID:
-                    fly_text = FlyText(GameWindowWidth / 2, 100, str("Please uncheck your current food"),
-                                       pygame.Color('black'))
+                    fly_text = FlyText(75, 25, str("Please deselect your current food"),
+                                       pygame.Color('red'))
                     fly_text_group.add(fly_text)
                 else:
                     HasFood = False
@@ -943,11 +946,11 @@ class ShopBed:
                         PlayerCharacter.max_exhaustion += self.MaxSleepMod
                         Shop_SleepListUnlockedBools[self.BedID] = True
                     else:
-                        fly_text = FlyText(150, 15, str("Need More Cash"), pygame.Color('black'))
+                        fly_text = FlyText(75, 15, str("Need More Cash"), pygame.Color('black'))
                         fly_text_group.add(fly_text)
                         isClicked = True
                 else:
-                    fly_text = FlyText(150, 15, str("Need A Place to Live First"), pygame.Color('black'))
+                    fly_text = FlyText(75, 10, str("Need A Place to Live First"), pygame.Color('red'))
                     fly_text_group.add(fly_text)
                     isClicked = True
 
@@ -1125,14 +1128,10 @@ class FlyText(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.image = font.render(text, True, colour)
         self.rect = self.image.get_rect()
-        self.rect.center = (x, y)
+        self.rect.topleft = (x, y)
         self.counter = 0
 
     def update(self):
-        # move damage text up
-        # self.rect.y -= .5
-        # delete the text after a few seconds
-
         self.counter += 1
         if self.counter > 60:
             self.kill()
@@ -1536,8 +1535,10 @@ while GameRunning:
         draw_text_centered("Cash: " + "${:,}".format(PlayerCharacter.cash),
                            font, pygame.Color('black'), GameWindowWidth / 2,
                            15)
-        draw_text("Current Food: " + ShopList[ShopID], pygame.font.SysFont('Times New Roman', 20),
-                  pygame.Color('black'), 100, 35)
+
+        draw_text("Food", pygame.font.SysFont('Calibri', 40), pygame.Color('black'), 83, 80)
+        pygame.draw.rect(screen, pygame.Color('black'), pygame.Rect(30, 125, 190, 375), 4, border_radius=50)
+
         BTN_Food_Corndog.draw()
         BTN_Food_Burger.draw()
         BTN_Food_Fried_Chicken.draw()
