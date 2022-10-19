@@ -253,12 +253,13 @@ HP_Token = True
 HP_Increase = 25
 HP_Food_Decrease_Token = False
 HP_Exhaustion_Decrease_Token = False
+Sleep_Increase_HP = 8
 HP_Decrease = .05
 HP_tick = .025
 
 # Sleep Variables
 Sleep_Token = False
-Sleep_Increase = 25
+Sleep_Increase = 15
 Sleep_tick = .025
 Sleep_Work_Decrease = 10
 
@@ -267,6 +268,7 @@ Food_Token = False
 Food_Increase = 25
 Food_tick = .025
 Food_Work_Decrease = 10
+Sleep_Decrease_Food = 5
 
 class Person:
 
@@ -977,6 +979,63 @@ class Food:
         self.surface.blit(subtext, subText_rect)
 
 
+class Sleep:
+    def __init__(self, surface, x, y, image, size_x, size_y):
+        global ShopID
+        self.image = pygame.transform.scale(image, (size_x, size_y))
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (x, y)
+        self.clicked = False
+        self.surface = surface
+        self.size_x = size_x
+        self.size_y = size_y
+        self.x = x
+        self.y = y
+
+    def draw(self):
+        # get mouse position
+        pos = pygame.mouse.get_pos()
+        global isClicked
+        global Sleep_Increase_HP
+        global Sleep_Increase
+        global Sleep_Decrease_Food
+
+        # check mouseover and clicked conditions
+        if self.rect.collidepoint(pos):
+            if pygame.mouse.get_pressed()[0] == 1 and isClicked == False:
+                # code here
+                # Adjusts Exhaustion
+                print(Sleep_Increase)
+                if PlayerCharacter.max_exhaustion - PlayerCharacter.exhaustion < Sleep_Increase:
+                    PlayerCharacter.exhaustion = PlayerCharacter.max_exhaustion
+                else:
+                    PlayerCharacter.exhaustion += Sleep_Increase
+
+                # Adjusts Health
+                if PlayerCharacter.max_hp - PlayerCharacter.hp < Sleep_Increase_HP:
+                    PlayerCharacter.hp = PlayerCharacter.max_hp
+                else:
+                    PlayerCharacter.hp += Sleep_Increase_HP
+
+                # Decrease Food
+                if PlayerCharacter.food > Sleep_Decrease_Food:
+                    PlayerCharacter.food -= Sleep_Decrease_Food
+                else:
+                    PlayerCharacter.food = 0
+
+                isClicked = True
+
+        if pygame.mouse.get_pressed()[0] == 0:
+            isClicked = False
+
+        # draw button
+        self.surface.blit(self.image, (self.rect.x, self.rect.y))
+        font = pygame.font.SysFont('Times New Roman', fit_text_to_width("Sleep", pygame.Color('black'), 105))
+        text = font.render("Sleep", True, Font_ActiveTextColor)
+        text_rect = text.get_rect(center=(self.x + self.size_x / 2, self.y + 15))
+        self.surface.blit(text, text_rect)
+
+
 """        
 GUI Classes
 """
@@ -1343,9 +1402,8 @@ player_exhaustion_bar = ExhaustionBar(GameWindowWidth / 6 * 5 - 75,
 DayProgressBar = DayBar(GameWindowWidth - 155, 5, DayCount, DayLength)
 
 # Creates Sleep Buttons
-sleep_bed_button = SleepButton(screen, player_exhaustion_bar.x,
-                               player_exhaustion_bar.y + 50, sleep_bed_img,
-                               150, 50)
+#sleep_bed_button = SleepButton(screen, player_exhaustion_bar.x, player_exhaustion_bar.y + 50, sleep_bed_img, 150, 50)
+BTN_Sleep = Sleep(screen, player_exhaustion_bar.x, player_exhaustion_bar.y + 50, BTN_Empty_IMG, 150, 50)
 
 # Creates Cash buttons
 Work_button = Work(screen, player_health_bar.x, player_health_bar.y + 60,
@@ -1480,13 +1538,11 @@ while GameRunning:
         player_food_bar.draw(PlayerCharacter.food)
         player_exhaustion_bar.draw(PlayerCharacter.exhaustion)
         DayProgressBar.draw()
-        sleep_bed_button.draw()
-        food_hotdog_button.draw()
+        BTN_Sleep.draw()
+        #food_hotdog_button.draw()
         Work_button.draw()
-        #beg_food_button.draw()
         BTN_Food_Beg.draw()
-        food_hamburger_button.draw()
-
+        #food_hamburger_button.draw()
         BTN_Shop.draw()
         BTN_Jobs.draw()
         BTN_Housing.draw()
