@@ -189,18 +189,19 @@ ShopListSleepDecrease = {0: 7,
                          6: 31
                          }
 #~~ Shop - Sleep Items ~~#
-Shop_SleepList = {0: "No Bed",
+Shop_Sleep_ID = 0
+Shop_SleepList = {0: "Sleeping Bag",
                   1: "Twin Bed",
                   2: "Full Bed",
                   3: "Queen Bed",
                   4: "King Bed"
                   }
-Shop_SleepListCost = {0: 0,
+Shop_SleepListCost = {0: 100,
                       1: 1000,
                       2: 10000,
                       3: 100000,
                       4: 1000000}
-Shop_SleepListUnlockedBools = {0: True,
+Shop_SleepListUnlockedBools = {0: False,
                                1: False,
                                2: False,
                                3: False,
@@ -778,17 +779,17 @@ class Sleep:
         global Sleep_Increase_HP
         global Sleep_Increase
         global Sleep_Decrease_Food
+        global Shop_Sleep_ID
 
         # check mouseover and clicked conditions
         if self.rect.collidepoint(pos):
             if pygame.mouse.get_pressed()[0] == 1 and isClicked == False:
                 # code here
                 # Adjusts Exhaustion
-                print(Sleep_Increase)
                 if PlayerCharacter.max_exhaustion - PlayerCharacter.exhaustion < Sleep_Increase:
                     PlayerCharacter.exhaustion = PlayerCharacter.max_exhaustion
                 else:
-                    PlayerCharacter.exhaustion += Sleep_Increase
+                    PlayerCharacter.exhaustion += Sleep_Increase + (Shop_Sleep_ID*.75)
 
                 # Adjusts Health
                 if PlayerCharacter.max_hp - PlayerCharacter.hp < Sleep_Increase_HP:
@@ -897,7 +898,7 @@ class ShopFood:
 
 
 class ShopBed:
-    def __init__(self, surface, x, y, image, size_x, size_y, BedID):
+    def __init__(self, surface, x, y, image, size_x, size_y, BedID, SleepTickMod, MaxSleepMod):
         self.image = pygame.transform.scale(image, (size_x, size_y))
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
@@ -908,71 +909,55 @@ class ShopBed:
         self.x = x
         self.y = y
         self.BedID = BedID
+        self.SleepTickMod = SleepTickMod
+        self.MaxSleepMod = MaxSleepMod
 
     def draw(self):
         # get mouse position
         pos = pygame.mouse.get_pos()
         global isClicked
         global PlayerCharacter
-        global ShopID
-        global ShopList
-        global ShopListCost
-        global ShopFoodListUnlockCost
-        global ShopFoodListUnlockBools
-        global HasFood
+        global Shop_Sleep_ID
+        global Shop_SleepList
+        global Shop_SleepListCost
+        global Shop_SleepListUnlockedBools
+        global Sleep_tick
 
-        font = pygame.font.SysFont('Times New Roman', 18)
-        subFont = pygame.font.SysFont('Times New Roman', 15)
+        font = pygame.font.SysFont('Times New Roman', fit_text_to_width(Shop_SleepList[self.BedID], pygame.Color('black'), 105))
+        subFont = pygame.font.SysFont('Times New Roman', fit_text_to_width("${:,}".format(Shop_SleepListCost[self.BedID]), pygame.Color('black'), 45))
 
-        if PlayerCharacter.cash >= ShopFoodListUnlockCost[self.BedID] or ShopFoodListUnlockBools[self.BedID]:
-            if ShopID == 0 or ShopID == self.BedID:
-                text = font.render(ShopList[self.BedID], True, Font_ActiveTextColor)
-                if ShopFoodListUnlockBools[self.BedID]:
-                    subText = subFont.render("Unlocked", True, Font_ActiveTextColor)
-                else:
-                    subText = subFont.render("${:,}".format(ShopFoodListUnlockCost[self.BedID]), True, Font_ActiveTextColor)
-            else:
-                text = font.render(ShopList[self.BedID], True, Font_InActiveTextColor)
-                if ShopFoodListUnlockBools[self.BedID]:
-                    subText = subFont.render("Unlocked", True, Font_InActiveTextColor)
-                else:
-                    subText = subFont.render("${:,}".format(ShopFoodListUnlockCost[self.BedID]), True, Font_InActiveTextColor)
+        if PlayerCharacter.cash >= Shop_SleepListCost[self.BedID]:
+            text = font.render(Shop_SleepList[self.BedID], True, Font_ActiveTextColor)
+            subText = subFont.render( "${:,}".format(Shop_SleepListCost[self.BedID]), True, Font_ActiveTextColor)
         else:
-            text = font.render(ShopList[self.BedID], True, Font_InActiveTextColor)
-            if ShopFoodListUnlockBools[self.BedID]:
-                subText = subFont.render("Unlocked", True, Font_InActiveTextColor)
-            else:
-                subText = subFont.render("${:,}".format(ShopFoodListUnlockCost[self.BedID]), True, Font_InActiveTextColor)
+            text = font.render(Shop_SleepList[self.BedID], True, Font_InActiveTextColor)
+            subText = subFont.render("${:,}".format(Shop_SleepListCost[self.BedID]), True, Font_InActiveTextColor)
         # check mouseover and clicked conditions
         if self.rect.collidepoint(pos):
             if pygame.mouse.get_pressed()[0] == 1 and isClicked == False:
                 # code here
                 isClicked = True
-
-                if not HasFood and ShopID == 0 or not HasFood and ShopFoodListUnlockBools[self.BedID]:
-                    if PlayerCharacter.cash >= ShopFoodListUnlockCost[self.BedID] or ShopFoodListUnlockBools[self.BedID]:
-                        HasFood = True
-                        ShopID = self.BedID
-                        if not ShopFoodListUnlockBools[self.BedID]:
-                            ShopFoodListUnlockBools[self.BedID] = True
-                            PlayerCharacter.cash -= ShopFoodListUnlockCost[self.BedID]
-                    else:
-                        fly_text = FlyText(165, 20, str("Not Enough Cash"), pygame.Color('black'))
-                        fly_text_group.add(fly_text)
-                elif HasFood and ShopID != self.BedID:
-                    fly_text = FlyText(GameWindowWidth / 2, 100, str("Please uncheck your current food"), pygame.Color('black'))
-                    fly_text_group.add(fly_text)
+                if Shop_Sleep_ID < self.BedID and PlayerCharacter.cash >= Shop_SleepListCost[self.BedID]:
+                    Shop_Sleep_ID = self.BedID
+                    Shop_SleepListUnlockedBools[self.BedID] = True
+                    PlayerCharacter.cash -= Shop_SleepListCost[self.BedID]
+                    Sleep_tick += self.SleepTickMod
+                    PlayerCharacter.max_exhaustion += self.MaxSleepMod
+                    Shop_SleepListUnlockedBools[self.BedID] = True
                 else:
-                    HasFood = False
-                    ShopID = 0
+                    fly_text = FlyText(150, 15, str("Need More Cash"),pygame.Color('black'))
+                    fly_text_group.add(fly_text)
+                    isClicked = True
 
         if pygame.mouse.get_pressed()[0] == 0:
             isClicked = False
 
         # draw button
         self.surface.blit(self.image, (self.rect.x, self.rect.y))
-        text_rect = text.get_rect(center=(self.x + self.size_x / 2, self.y + 15))
-        subText_rect = subText.get_rect(center=(self.x + self.size_x / 2, self.y + 35))
+        text_rect = text.get_rect(center=(self.x + self.size_x / 2,
+                                          self.y + 15))
+        subText_rect = subText.get_rect(center=(self.x + self.size_x / 2,
+                                                self.y + 35))
         self.surface.blit(text, text_rect)
         self.surface.blit(subText, subText_rect)
 
