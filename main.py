@@ -21,7 +21,6 @@ GameWindowHeight = 512
 GameScreenWidth = 1920
 GameScreenHeight = 1080
 MenuState = "main"
-PauseTicking = False
 isClicked = False
 Cheat1, Cheat2 = False, False
 
@@ -39,9 +38,13 @@ font = pygame.font.SysFont('Times New Roman', 18)
 
 GameStartTicks = pygame.time.get_ticks()
 TimerStartTicks = pygame.time.get_ticks()
-
 clock = pygame.time.Clock()
 fps = 60
+ms_frame = clock.tick(fps)
+DefaultTick = 1
+PauseTicking = False
+
+
 # Define Colors
 green = (0, 255, 0)
 red = (255, 0, 0)
@@ -51,6 +54,10 @@ light_gray = (225, 225, 225)
 light_orange = (255, 178, 102)
 Font_ActiveTextColor = (0, 0, 0)
 Font_InActiveTextColor = (125, 125, 125)
+COLOR_INACTIVE = (100, 80, 255)
+COLOR_ACTIVE = (100, 200, 255)
+COLOR_LIST_INACTIVE = (255, 100, 100)
+COLOR_LIST_ACTIVE = (255, 150, 150)
 
 ### Load Images ###
 BTN_Empty_IMG = pygame.image.load(
@@ -282,12 +289,15 @@ class DayBar:
         global GameStartTicks
         global TimerStartTicks
         global DayCount
+        global DayLength
         global NewDay
 
-        self.seconds = (pygame.time.get_ticks() - TimerStartTicks) / 1000
+        #self.seconds = (pygame.time.get_ticks() - TimerStartTicks) / 1000
+        self.seconds += DefaultTick * ms_frame / 1000
         NewDay = False
         if self.seconds > DayLength:
             TimerStartTicks = pygame.time.get_ticks()
+            self.seconds = 0
             DayCount += 1
             NewDay = True
         ratio = self.seconds / DayLength
@@ -309,7 +319,12 @@ class HealthBar:
         self.hp = hp
         self.max_hp = max_hp
 
+
+
+
     def draw(self, hp):
+        global fps
+        global PlayerCharacter
         # update with new health
         self.hp = hp
         # calculate health ratio
@@ -318,10 +333,7 @@ class HealthBar:
         pygame.draw.rect(screen, green, (self.x, self.y, 150 * ratio, 20))
 
         titleratio = round(ratio * 100)
-        txt = font.render(
-            (str(round(PlayerCharacter.hp)) + "/" +
-             str(PlayerCharacter.max_hp) + "   " + str(titleratio) + "%"),
-            True, blue)
+        txt = font.render((str(round(PlayerCharacter.hp)) + "/" + str(PlayerCharacter.max_hp) + "   " + str(titleratio) + "%"), True, blue)
         screen.blit(txt, (self.x + 2, self.y))
         title = font.render("Health", True, pygame.Color('black'))
         screen.blit(title, (self.x + 50, self.y - 25))
@@ -378,6 +390,57 @@ class ExhaustionBar:
         screen.blit(txt, (self.x + 2, self.y))
         title = font.render("Exhaustion", True, pygame.Color('black'))
         screen.blit(title, (self.x + 25, self.y - 25))
+
+
+class DropDown():
+
+    def __init__(self, color_menu, color_option, x, y, w, h, font, main, options):
+        self.color_menu = color_menu
+        self.color_option = color_option
+        self.rect = pygame.Rect(x, y, w, h)
+        self.font = font
+        self.main = main
+        self.options = options
+        self.draw_menu = False
+        self.menu_active = False
+        self.active_option = -1
+
+    def draw(self, surf):
+        pygame.draw.rect(surf, self.color_menu[self.menu_active], self.rect, 0)
+        msg = self.font.render(self.main, 1, (0, 0, 0))
+        surf.blit(msg, msg.get_rect(center=self.rect.center))
+
+        if self.draw_menu:
+            for i, text in enumerate(self.options):
+                rect = self.rect.copy()
+                rect.y += (i + 1) * self.rect.height
+                pygame.draw.rect(surf, self.color_option[1 if i == self.active_option else 0], rect, 0)
+                msg = self.font.render(text, 1, (0, 0, 0))
+                surf.blit(msg, msg.get_rect(center=rect.center))
+
+    def update(self, event_list):
+        mpos = pygame.mouse.get_pos()
+        self.menu_active = self.rect.collidepoint(mpos)
+
+        self.active_option = -1
+        for i in range(len(self.options)):
+            rect = self.rect.copy()
+            rect.y += (i + 1) * self.rect.height
+            if rect.collidepoint(mpos):
+                self.active_option = i
+                break
+
+        if not self.menu_active and self.active_option == -1:
+            self.draw_menu = False
+
+        for event in event_list:
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if self.menu_active:
+                    self.draw_menu = not self.draw_menu
+                elif self.draw_menu and self.active_option >= 0:
+                    self.draw_menu = False
+                    return self.active_option
+        return -1
 
 
 """"        
@@ -506,28 +569,23 @@ class Job:
         global LivingID
         global JobListBools
 
-        font = pygame.font.SysFont(
-            'Times New Roman',
-            fit_text_to_width(JobList[self.JobIDNumber], pygame.Color('black'),
-                              105))
-        subFont = pygame.font.SysFont(
-            'Times New Roman',
-            fit_text_to_width(
-                str(JobListIncome[self.JobIDNumber]) + "/day",
-                pygame.Color('black'), 45))
+        font = pygame.font.SysFont('Times New Roman',
+                                   fit_text_to_width(JobList[self.JobIDNumber], pygame.Color('black'), 105))
+        subFont = pygame.font.SysFont('Times New Roman',
+                                      fit_text_to_width(str(JobListIncome[self.JobIDNumber]) + "/day",
+                                                        pygame.Color('black'), 45))
 
-        if JobListBools[self.JobIDNumber]:
-            text = font.render(JobList[self.JobIDNumber], True,
-                               Font_ActiveTextColor)
-            subText = subFont.render(
-                str("${:,}".format(JobListIncome[self.JobIDNumber]) + "/day"),
-                True, Font_ActiveTextColor)
+        if JobListBools[self.JobIDNumber] or not HasJob:
+            if JobListBools[self.JobIDNumber] and HasJob:
+                text = font.render(JobList[self.JobIDNumber], True, Font_ActiveTextColor)
+                subText = subFont.render("Current Job", True,Font_ActiveTextColor)
+            else:
+                text = font.render(JobList[self.JobIDNumber], True, Font_ActiveTextColor)
+                subText = subFont.render(str("${:,}".format(JobListIncome[self.JobIDNumber]) + "/day"), True, Font_ActiveTextColor)
         else:
-            text = font.render(JobList[self.JobIDNumber], True,
-                               Font_InActiveTextColor)
-            subText = subFont.render(
-                str("${:,}".format(JobListIncome[self.JobIDNumber]) + "/day"),
-                True, Font_InActiveTextColor)
+            text = font.render(JobList[self.JobIDNumber], True, Font_InActiveTextColor)
+            subText = subFont.render(str("${:,}".format(JobListIncome[self.JobIDNumber]) + "/day"), True,
+                                     Font_InActiveTextColor)
 
         # check mouseover and clicked conditions
         if self.rect.collidepoint(pos):
@@ -539,10 +597,7 @@ class Job:
                     CurrentJob = str(JobList[JobID])
                     JobListBools[self.JobIDNumber] = True
                 elif HasJob and JobListBools[self.JobIDNumber] == False:
-                    fly_text = FlyText(GameWindowWidth / 2,
-                                       GameWindowHeight / 2,
-                                       str("Please Leave Current Job"),
-                                       pygame.Color('black'))
+                    fly_text = FlyText(75, 15, str("Please Leave Current Job"), pygame.Color('red'))
                     fly_text_group.add(fly_text)
                 else:
                     HasJob = False
@@ -856,10 +911,10 @@ class ShopFood:
                             ShopFoodListUnlockBools[self.FoodID] = True
                             PlayerCharacter.cash -= ShopFoodListUnlockCost[self.FoodID]
                     else:
-                        fly_text = FlyText(75, 20, str("Not Enough Cash"), pygame.Color('black'))
+                        fly_text = FlyText(75, 20, str("Not Enough Cash"), pygame.Color('red'))
                         fly_text_group.add(fly_text)
                 elif HasFood and ShopID != self.FoodID:
-                    fly_text = FlyText(75, 25, str("Please deselect your current food"),
+                    fly_text = FlyText(75, 27, str("Please deselect your current food"),
                                        pygame.Color('red'))
                     fly_text_group.add(fly_text)
                 else:
@@ -944,10 +999,8 @@ class ShopBed:
 
         # draw button
         self.surface.blit(self.image, (self.rect.x, self.rect.y))
-        text_rect = text.get_rect(center=(self.x + self.size_x / 2,
-                                          self.y + 15))
-        subText_rect = subText.get_rect(center=(self.x + self.size_x / 2,
-                                                self.y + 35))
+        text_rect = text.get_rect(center=(self.x + self.size_x / 2, self.y + 15))
+        subText_rect = subText.get_rect(center=(self.x + self.size_x / 2, self.y + 35))
         self.surface.blit(text, text_rect)
         self.surface.blit(subText, subText_rect)
 
@@ -1104,6 +1157,43 @@ class Button_Home:
 
         # draw button
         self.surface.blit(self.image, (self.rect.x, self.rect.y))
+
+
+class Button_Restart:
+    def __init__(self, surface, x, y, image, size_x, size_y):
+        self.image = pygame.transform.scale(image, (size_x, size_y))
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (x, y)
+        self.clicked = False
+        self.surface = surface
+        self.x = x
+        self.y = y
+        self.size_x = size_x
+        self.size_y = size_y
+
+    def draw(self):
+        # get mouse position
+        pos = pygame.mouse.get_pos()
+        global MenuState
+        global isClicked
+        font = pygame.font.SysFont('Times New Roman', 18)
+        text = font.render("Restart", True, pygame.Color('black'))
+        # check mouseover and clicked conditions
+        if self.rect.collidepoint(pos):
+            if pygame.mouse.get_pressed()[0] == 1 and isClicked == False:
+                ResetStats()
+                MenuState = "main"
+                isClicked = True
+
+        if pygame.mouse.get_pressed()[0] == 0:
+            isClicked = False
+
+        # draw button
+
+        self.surface.blit(self.image, (self.rect.x, self.rect.y))
+        text_rect = text.get_rect(center=(self.x + self.size_x / 2, self.y + self.size_y / 2))
+        self.surface.blit(text, text_rect)
+
 
 
 class FlyText(pygame.sprite.Sprite):
@@ -1277,6 +1367,7 @@ def ResetStats():
     global LivingBools
     global JobID
     global JobListBools
+    global HasJob
     global ShopID
     global ShopFoodListUnlockBools
     global CurrentJob
@@ -1321,6 +1412,7 @@ def ResetStats():
         7: False,
         8: False
     }
+    HasJob = False
     ShopID = 0
     ShopFoodListUnlockBools = {0: True,
                                1: False,
@@ -1378,7 +1470,7 @@ BTN_Food_Lasagna = ShopFood(screen, xstart, ystart + 240, BTN_Empty_IMG, 150, 50
 BTN_Food_Steak = ShopFood(screen, xstart, ystart + 300, BTN_Empty_IMG, 150, 50, 6)
 # Beds #
 xstart = 300
-ystart = 100
+ystart = 140
 BTN_Bed_Twin = ShopBed(screen, xstart, ystart, BTN_Empty_IMG, 150, 50, 1, -.001, 10)
 BTN_Bed_Full = ShopBed(screen, xstart, ystart, BTN_Empty_IMG, 150, 50, 2, -.002, 15)
 BTN_Bed_Queen = ShopBed(screen, xstart, ystart, BTN_Empty_IMG, 150, 50, 3, -.003, 20)
@@ -1430,18 +1522,19 @@ BTN_Jobs = Button_Jobs(screen, player_health_bar.x, player_health_bar.y + 275,
 BTN_Housing = Button_Housing(screen, player_exhaustion_bar.x,
                              player_health_bar.y + 275, Housing_img, 150, 50)
 BTN_Home = Button_Home(screen, 5, 5, Home_button_img, 50, 50)
+BTN_Restart = Button_Restart(screen, GameWindowWidth/2, GameWindowHeight/2 + 50, BTN_Empty_IMG, 150, 50)
+
+list1 = DropDown(
+    [COLOR_INACTIVE, COLOR_ACTIVE],
+    [COLOR_LIST_INACTIVE, COLOR_LIST_ACTIVE],
+    100, 100, 100, 50,
+    pygame.font.SysFont(None, 30),
+    str(DefaultTick), ["1", "2", "5", "10", "20"])
 
 while GameRunning:
-
+    event_list = pygame.event.get()
     clock.tick(fps)
     draw_BG()
-
-    if not MenuState == "GAME OVER":
-        BTN_Options.draw()
-    else:
-        draw_text_centered("GAME OVER",
-                           pygame.font.SysFont('Times New Roman', 50),
-                           pygame.Color('black'), GameWindowWidth / 2, 35)
 
     ### Displays Main Screen ###
 
@@ -1449,21 +1542,25 @@ while GameRunning:
     if MenuState == "main":
         if PlayerCharacter.hp > 0:
             if not PauseTicking:
-                PlayerCharacter.hp -= HP_tick
+                #PlayerCharacter.hp -= HP_tick
+
+                PlayerCharacter.hp -= (DefaultTick * ms_frame / 1000) + HP_tick
         else:
             MenuState = "GAME OVER"
             ResetStats()
 
         if not PauseTicking:
             if 0 < PlayerCharacter.exhaustion <= PlayerCharacter.max_exhaustion:
-                PlayerCharacter.exhaustion -= Sleep_tick
+                PlayerCharacter.exhaustion -= Sleep_tick + (DefaultTick * ms_frame / 1000)
             else:
-                PlayerCharacter.hp -= HP_Decrease
+                PlayerCharacter.hp -= HP_Decrease + (DefaultTick * ms_frame / 1000)
 
             if PlayerCharacter.food > 0:
-                PlayerCharacter.food -= Food_tick
+                PlayerCharacter.food -= Food_tick + (DefaultTick * ms_frame / 1000)
             else:
-                PlayerCharacter.hp -= HP_Decrease
+                PlayerCharacter.hp -= HP_Decrease + (DefaultTick * ms_frame / 1000)
+
+            #DayProgressBar.seconds += DefaultTick * ms_frame / 1000
 
         if NewDay:
             if JobListBools[1]:
@@ -1503,16 +1600,20 @@ while GameRunning:
         player_exhaustion_bar.draw(PlayerCharacter.exhaustion)
         DayProgressBar.draw()
         BTN_Sleep.draw()
-        draw_text_centered("Current Bed", pygame.font.SysFont('Times New Roman', 20) , pygame.Color('black'), 750, BTN_Sleep.y + 60)
-        draw_text_centered(str(Shop_SleepList[Shop_Sleep_ID]), pygame.font.SysFont('Times New Roman', 15),pygame.Color('black'), 750, BTN_Sleep.y + 85)
+        draw_text_centered("Current Bed", pygame.font.SysFont('Times New Roman', 20), pygame.Color('black'), 750,
+                           BTN_Sleep.y + 60)
+        draw_text_centered(str(Shop_SleepList[Shop_Sleep_ID]), pygame.font.SysFont('Times New Roman', 15),
+                           pygame.Color('black'), 750, BTN_Sleep.y + 85)
         Work_button.draw()
         BTN_Food_Beg.draw()
         BTN_Shop.draw()
         BTN_Jobs.draw()
         BTN_Housing.draw()
+        BTN_Options.draw()
         draw_text_centered("Cash: " + "${:,}".format(PlayerCharacter.cash),
                            font, pygame.Color('black'), GameWindowWidth / 2,
                            15)
+
     elif MenuState == "shop":
         BTN_Home.draw()
         draw_text_centered("SHOP", pygame.font.SysFont('Times New Roman', 25),
@@ -1522,7 +1623,7 @@ while GameRunning:
                            15)
 
         draw_text("Food", pygame.font.SysFont('Calibri', 40), pygame.Color('black'), 83, 80)
-        pygame.draw.rect(screen, pygame.Color('black'), pygame.Rect(30, 125, 190, 375), 4, border_radius=50)
+        pygame.draw.rect(screen, pygame.Color('black'), pygame.Rect(30, 75, 190, 425), 4, border_radius=50)
 
         BTN_Food_Corndog.draw()
         BTN_Food_Burger.draw()
@@ -1530,6 +1631,9 @@ while GameRunning:
         BTN_Food_Spaghetti.draw()
         BTN_Food_Lasagna.draw()
         BTN_Food_Steak.draw()
+
+        draw_text("Beds", pygame.font.SysFont('Calibri', 40), pygame.Color('black'), 333, 80)
+        pygame.draw.rect(screen, pygame.Color('black'), pygame.Rect(280, 75, 190, 130), 4, border_radius=50)
 
         if Shop_SleepListUnlockedBools[0]:
             BTN_Bed_Twin.draw()
@@ -1558,13 +1662,13 @@ while GameRunning:
         draw_text_centered("Current Stats",
                            pygame.font.SysFont('Times New Roman', 25),
                            pygame.Color('black'), 623, 100)
-        draw_text("HP Decrease Rate: " + str(round(HP_tick * -1 * 60, 1)),
+        draw_text("HP Decrease Rate: " + str(round(HP_tick * -1 * 60 * DefaultTick, 1)),
                   pygame.font.SysFont('Times New Roman', 20),
                   pygame.Color('black'), 475, 150)
-        draw_text("Food Decrease Rate: " + str(round(Food_tick * -1 * 60, 1)),
+        draw_text("Food Decrease Rate: " + str(round(Food_tick * -1 * 60 * DefaultTick, 1)),
                   pygame.font.SysFont('Times New Roman', 20),
                   pygame.Color('black'), 475, 175)
-        draw_text("Sleep Decrease Rate: " + str(round(Sleep_tick * -1 * 60, 1)),
+        draw_text("Sleep Decrease Rate: " + str(round(Sleep_tick * -1 * 60 * DefaultTick, 1)),
                   pygame.font.SysFont('Times New Roman', 20),
                   pygame.Color('black'), 475, 200)
 
@@ -1593,8 +1697,7 @@ while GameRunning:
 
     elif MenuState == "jobs":
         BTN_Home.draw()
-        draw_text("Current Job: " + CurrentJob, font, pygame.Color('black'),
-                  200, 10)
+
         if LivingID == 0:
             draw_text_centered("You Need a place to live first!",
                                pygame.font.SysFont('Times New Roman', 25),
@@ -1619,6 +1722,21 @@ while GameRunning:
 
     elif MenuState == "options":
         BTN_Home.draw()
+        BTN_Restart.draw()
+
+        selected_option = list1.update(pygame.event.get())
+        if selected_option >= 0:
+            list1.main = list1.options[selected_option]
+            DefaultTick = int(list1.options[selected_option])
+        list1.draw(screen)
+
+        draw_text("Game Speed", pygame.font.SysFont('Times New Roman', 20), pygame.Color('black'), 100, 75)
+
+    elif MenuState == "GAME OVER":
+        draw_text_centered("GAME OVER",
+                           pygame.font.SysFont('Times New Roman', 50),
+                           pygame.Color('black'), GameWindowWidth / 2, 35)
+        BTN_Restart.draw()
 
     # Cautionary Text draw
     fly_text_group.update()
