@@ -21,7 +21,6 @@ GameWindowHeight = 512
 GameScreenWidth = 1920
 GameScreenHeight = 1080
 MenuState = "main"
-PauseTicking = False
 isClicked = False
 Cheat1, Cheat2 = False, False
 
@@ -39,9 +38,13 @@ font = pygame.font.SysFont('Times New Roman', 18)
 
 GameStartTicks = pygame.time.get_ticks()
 TimerStartTicks = pygame.time.get_ticks()
-
 clock = pygame.time.Clock()
 fps = 60
+ms_frame = clock.tick(fps)
+DefaultTick = 1
+PauseTicking = False
+
+
 # Define Colors
 green = (0, 255, 0)
 red = (255, 0, 0)
@@ -51,6 +54,10 @@ light_gray = (225, 225, 225)
 light_orange = (255, 178, 102)
 Font_ActiveTextColor = (0, 0, 0)
 Font_InActiveTextColor = (125, 125, 125)
+COLOR_INACTIVE = (100, 80, 255)
+COLOR_ACTIVE = (100, 200, 255)
+COLOR_LIST_INACTIVE = (255, 100, 100)
+COLOR_LIST_ACTIVE = (255, 150, 150)
 
 ### Load Images ###
 BTN_Empty_IMG = pygame.image.load(
@@ -282,12 +289,15 @@ class DayBar:
         global GameStartTicks
         global TimerStartTicks
         global DayCount
+        global DayLength
         global NewDay
 
-        self.seconds = (pygame.time.get_ticks() - TimerStartTicks) / 1000
+        #self.seconds = (pygame.time.get_ticks() - TimerStartTicks) / 1000
+        self.seconds += DefaultTick * ms_frame / 1000
         NewDay = False
         if self.seconds > DayLength:
             TimerStartTicks = pygame.time.get_ticks()
+            self.seconds = 0
             DayCount += 1
             NewDay = True
         ratio = self.seconds / DayLength
@@ -309,7 +319,12 @@ class HealthBar:
         self.hp = hp
         self.max_hp = max_hp
 
+
+
+
     def draw(self, hp):
+        global fps
+        global PlayerCharacter
         # update with new health
         self.hp = hp
         # calculate health ratio
@@ -318,10 +333,7 @@ class HealthBar:
         pygame.draw.rect(screen, green, (self.x, self.y, 150 * ratio, 20))
 
         titleratio = round(ratio * 100)
-        txt = font.render(
-            (str(round(PlayerCharacter.hp)) + "/" +
-             str(PlayerCharacter.max_hp) + "   " + str(titleratio) + "%"),
-            True, blue)
+        txt = font.render((str(round(PlayerCharacter.hp)) + "/" + str(PlayerCharacter.max_hp) + "   " + str(titleratio) + "%"), True, blue)
         screen.blit(txt, (self.x + 2, self.y))
         title = font.render("Health", True, pygame.Color('black'))
         screen.blit(title, (self.x + 50, self.y - 25))
@@ -378,6 +390,57 @@ class ExhaustionBar:
         screen.blit(txt, (self.x + 2, self.y))
         title = font.render("Exhaustion", True, pygame.Color('black'))
         screen.blit(title, (self.x + 25, self.y - 25))
+
+
+class DropDown():
+
+    def __init__(self, color_menu, color_option, x, y, w, h, font, main, options):
+        self.color_menu = color_menu
+        self.color_option = color_option
+        self.rect = pygame.Rect(x, y, w, h)
+        self.font = font
+        self.main = main
+        self.options = options
+        self.draw_menu = False
+        self.menu_active = False
+        self.active_option = -1
+
+    def draw(self, surf):
+        pygame.draw.rect(surf, self.color_menu[self.menu_active], self.rect, 0)
+        msg = self.font.render(self.main, 1, (0, 0, 0))
+        surf.blit(msg, msg.get_rect(center=self.rect.center))
+
+        if self.draw_menu:
+            for i, text in enumerate(self.options):
+                rect = self.rect.copy()
+                rect.y += (i + 1) * self.rect.height
+                pygame.draw.rect(surf, self.color_option[1 if i == self.active_option else 0], rect, 0)
+                msg = self.font.render(text, 1, (0, 0, 0))
+                surf.blit(msg, msg.get_rect(center=rect.center))
+
+    def update(self, event_list):
+        mpos = pygame.mouse.get_pos()
+        self.menu_active = self.rect.collidepoint(mpos)
+
+        self.active_option = -1
+        for i in range(len(self.options)):
+            rect = self.rect.copy()
+            rect.y += (i + 1) * self.rect.height
+            if rect.collidepoint(mpos):
+                self.active_option = i
+                break
+
+        if not self.menu_active and self.active_option == -1:
+            self.draw_menu = False
+
+        for event in event_list:
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if self.menu_active:
+                    self.draw_menu = not self.draw_menu
+                elif self.draw_menu and self.active_option >= 0:
+                    self.draw_menu = False
+                    return self.active_option
+        return -1
 
 
 """"        
@@ -1461,8 +1524,15 @@ BTN_Housing = Button_Housing(screen, player_exhaustion_bar.x,
 BTN_Home = Button_Home(screen, 5, 5, Home_button_img, 50, 50)
 BTN_Restart = Button_Restart(screen, GameWindowWidth/2, GameWindowHeight/2 + 50, BTN_Empty_IMG, 150, 50)
 
-while GameRunning:
+list1 = DropDown(
+    [COLOR_INACTIVE, COLOR_ACTIVE],
+    [COLOR_LIST_INACTIVE, COLOR_LIST_ACTIVE],
+    100, 100, 100, 50,
+    pygame.font.SysFont(None, 30),
+    str(DefaultTick), ["1", "2", "5", "10", "20"])
 
+while GameRunning:
+    event_list = pygame.event.get()
     clock.tick(fps)
     draw_BG()
 
@@ -1472,22 +1542,25 @@ while GameRunning:
     if MenuState == "main":
         if PlayerCharacter.hp > 0:
             if not PauseTicking:
-                PlayerCharacter.hp -= HP_tick
+                #PlayerCharacter.hp -= HP_tick
+
+                PlayerCharacter.hp -= (DefaultTick * ms_frame / 1000) + HP_tick
         else:
             MenuState = "GAME OVER"
             ResetStats()
 
-
         if not PauseTicking:
             if 0 < PlayerCharacter.exhaustion <= PlayerCharacter.max_exhaustion:
-                PlayerCharacter.exhaustion -= Sleep_tick
+                PlayerCharacter.exhaustion -= Sleep_tick + (DefaultTick * ms_frame / 1000)
             else:
-                PlayerCharacter.hp -= HP_Decrease
+                PlayerCharacter.hp -= HP_Decrease + (DefaultTick * ms_frame / 1000)
 
             if PlayerCharacter.food > 0:
-                PlayerCharacter.food -= Food_tick
+                PlayerCharacter.food -= Food_tick + (DefaultTick * ms_frame / 1000)
             else:
-                PlayerCharacter.hp -= HP_Decrease
+                PlayerCharacter.hp -= HP_Decrease + (DefaultTick * ms_frame / 1000)
+
+            #DayProgressBar.seconds += DefaultTick * ms_frame / 1000
 
         if NewDay:
             if JobListBools[1]:
@@ -1589,13 +1662,13 @@ while GameRunning:
         draw_text_centered("Current Stats",
                            pygame.font.SysFont('Times New Roman', 25),
                            pygame.Color('black'), 623, 100)
-        draw_text("HP Decrease Rate: " + str(round(HP_tick * -1 * 60, 1)),
+        draw_text("HP Decrease Rate: " + str(round(HP_tick * -1 * 60 * DefaultTick, 1)),
                   pygame.font.SysFont('Times New Roman', 20),
                   pygame.Color('black'), 475, 150)
-        draw_text("Food Decrease Rate: " + str(round(Food_tick * -1 * 60, 1)),
+        draw_text("Food Decrease Rate: " + str(round(Food_tick * -1 * 60 * DefaultTick, 1)),
                   pygame.font.SysFont('Times New Roman', 20),
                   pygame.Color('black'), 475, 175)
-        draw_text("Sleep Decrease Rate: " + str(round(Sleep_tick * -1 * 60, 1)),
+        draw_text("Sleep Decrease Rate: " + str(round(Sleep_tick * -1 * 60 * DefaultTick, 1)),
                   pygame.font.SysFont('Times New Roman', 20),
                   pygame.Color('black'), 475, 200)
 
@@ -1650,6 +1723,14 @@ while GameRunning:
     elif MenuState == "options":
         BTN_Home.draw()
         BTN_Restart.draw()
+
+        selected_option = list1.update(pygame.event.get())
+        if selected_option >= 0:
+            list1.main = list1.options[selected_option]
+            DefaultTick = int(list1.options[selected_option])
+        list1.draw(screen)
+
+        draw_text("Game Speed", pygame.font.SysFont('Times New Roman', 20), pygame.Color('black'), 100, 75)
 
     elif MenuState == "GAME OVER":
         draw_text_centered("GAME OVER",
