@@ -1301,6 +1301,7 @@ def LoadGame():
         ShopFoodListUnlockBools = data["ShopFoodListUnlockBools"]
         Shop_SleepListUnlockedBools = data["Shop_SleepListUnlockedBools"]
         Shop_Sleep_ID = data["Shop_Sleep_ID"]
+        DefaultTick = data["DefaultTick"]
 
         # screen = pygame.display.set_mode((GameWindowWidth, GameWindowHeight))
         print("Loaded Variables")
@@ -1343,7 +1344,8 @@ def SaveGame():
         "HasFood": HasFood,
         "ShopFoodListUnlockBools": ShopFoodListUnlockBools,
         "Shop_Sleep_ID": Shop_Sleep_ID,
-        "Shop_SleepListUnlockedBools": Shop_SleepListUnlockedBools
+        "Shop_SleepListUnlockedBools": Shop_SleepListUnlockedBools,
+        "DefaultTick": DefaultTick
 
     }
     with io.open('GameSaveFile.json', 'w', encoding='utf8') as outfile:
@@ -1377,6 +1379,7 @@ def ResetStats():
     global Sleep_tick
     global HP_tick
     global Food_tick
+    global DefaultTick
 
     PlayerCharacter.hp = 100
     PlayerCharacter.max_hp = 100
@@ -1430,6 +1433,7 @@ def ResetStats():
     Sleep_tick = 0.025
     Food_tick = 0.025
     HP_tick = 0.025
+    DefaultTick = 1
 
 
 LoadGame()
@@ -1532,7 +1536,7 @@ list1 = DropDown(
     str(DefaultTick), ["1", "2", "5", "10", "20"])
 
 while GameRunning:
-    event_list = pygame.event.get()
+
     clock.tick(fps)
     draw_BG()
 
