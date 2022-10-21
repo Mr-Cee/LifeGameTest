@@ -1648,7 +1648,7 @@ while GameRunning:
         elif Shop_SleepListUnlockedBools[3]:
             BTN_Bed_King.draw()
         else:
-            draw_text("No New Beds", pygame.font.SysFont('Times New Roman', 25), pygame.Color('black'), 225, 108)
+            draw_text("No New Beds", pygame.font.SysFont('Times New Roman', 25), pygame.Color('black'), 325, 108)
 
     elif MenuState == "housing":
         BTN_Home.draw()
