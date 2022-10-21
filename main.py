@@ -515,9 +515,9 @@ class House:
                     LivingBools[LivingID] = True
                     LivingBools[LivingID - 1] = False
                     PlayerCharacter.cash -= LivingIDCost[LivingID]
-                    Sleep_tick *= self.SleepTickMod
-                    HP_tick *= self.HPTickMod
-                    Food_tick *= self.FoodTickMod
+                    Sleep_tick += self.SleepTickMod
+                    HP_tick += self.HPTickMod
+                    Food_tick += self.FoodTickMod
                     PlayerCharacter.max_hp += 10
                     PlayerCharacter.max_food += 10
                     PlayerCharacter.max_exhaustion += 15
@@ -1483,28 +1483,28 @@ BTN_Bed_King = ShopBed(screen, xstart, ystart, BTN_Empty_IMG, 150, 50, 4, -.004,
 # Creates House buttons
 BTN_apartment_starter = House(screen, player_health_bar.x,
                               player_health_bar.y + 25, BTN_Empty_IMG, 150, 50,
-                              1, .95, .95, .75)
+                              1, -.001, -.001, -.001)
 BTN_apartment_advanced = House(screen, player_health_bar.x,
                                player_health_bar.y + 25, BTN_Empty_IMG, 150,
-                               50, 2, .95, .95, .75)
+                               50, 2, -.001, -.001, -.002)
 BTN_Housing_Condo_Basic = House(screen, player_health_bar.x,
                                 player_health_bar.y + 25, BTN_Empty_IMG, 150,
-                                50, 3, .95, .95, .75)
+                                50, 3, -.001, -.001, -.003)
 BTN_Housing_Condo_Fancy = House(screen, player_health_bar.x,
                                 player_health_bar.y + 25, BTN_Empty_IMG, 150,
-                                50, 4, .95, .95, .75)
+                                50, 4, -.001, -.001, -.004)
 BTN_Housing_House_Basic = House(screen, player_health_bar.x,
                                 player_health_bar.y + 25, BTN_Empty_IMG, 150,
-                                50, 5, .95, .95, .75)
+                                50, 5, -.001, -.001, -.005)
 BTN_Housing_House_Fancy = House(screen, player_health_bar.x,
                                 player_health_bar.y + 25, BTN_Empty_IMG, 150,
-                                50, 6, .95, .95, .75)
+                                50, 6, -.001, -.001, -.01)
 BTN_Housing_Mansion_Small = House(screen, player_health_bar.x,
                                   player_health_bar.y + 25, BTN_Empty_IMG, 150,
-                                  50, 7, .95, .95, .75)
+                                  50, 7, -.001, -.001, -.015)
 BTN_Housing_Mansion_Large = House(screen, player_health_bar.x,
                                   player_health_bar.y + 25, BTN_Empty_IMG, 150,
-                                  50, 8, .95, .95, .75)
+                                  50, 8, -.001, -.001, -.02)
 
 # Creates Job Buttons
 BTN_Fast_Food_Job = Job(screen, 100, 40, BTN_Empty_IMG, 150, 50, 1)
@@ -1648,7 +1648,7 @@ while GameRunning:
         elif Shop_SleepListUnlockedBools[3]:
             BTN_Bed_King.draw()
         else:
-            draw_text("No New Beds", pygame.font.SysFont('Times New Roman', 25), pygame.Color('black'), 325, 108)
+            draw_text("No New Beds", pygame.font.SysFont('Times New Roman', 25), pygame.Color('black'), 305, 130)
 
     elif MenuState == "housing":
         BTN_Home.draw()
