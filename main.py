@@ -22,7 +22,7 @@ GameScreenWidth = 1920
 GameScreenHeight = 1080
 MenuState = "main"
 isClicked = False
-Cheat1, Cheat2 = False, False
+Cheat1, Cheat2, Cheat3 = False, False, False
 
 pygame.init()
 screen = pygame.display.set_mode((GameWindowWidth, GameWindowHeight))
@@ -43,7 +43,6 @@ fps = 60
 ms_frame = clock.tick(fps)
 DefaultTick = 1
 PauseTicking = False
-
 
 # Define Colors
 green = (0, 255, 0)
@@ -187,6 +186,37 @@ Shop_SleepListUnlockedBools = {0: True,
                                2: False,
                                3: False,
                                4: False}
+
+# ~~ Shop - HP Items ~~#
+Shop_Health_ID = 0
+Shop_HealthList = {0: "No Medicine",
+                   1: "Meds #1",
+                   2: "Meds #2",
+                   3: "Meds #3",
+                   4: "Meds #4",
+                   5: "Meds #5",
+                   6: "Meds #6",
+                   7: "Meds #7"
+                   }
+Shop_HealthListCost = {0: 0,
+                       1: 1000,
+                       2: 10000,
+                       3: 100000,
+                       4: 500000,
+                       5: 1000000,
+                       6: 5000000,
+                       7: 10000000
+                       }
+Shop_HealthListUnlockedBools = {0: True,
+                                1: False,
+                                2: False,
+                                3: False,
+                                4: False,
+                                5: False,
+                                6: False,
+                                7: False,
+                                }
+
 # Job Variables
 CurrentJob = "Jobless"
 HasJob = False
@@ -292,7 +322,7 @@ class DayBar:
         global DayLength
         global NewDay
 
-        #self.seconds = (pygame.time.get_ticks() - TimerStartTicks) / 1000
+        # self.seconds = (pygame.time.get_ticks() - TimerStartTicks) / 1000
         self.seconds += DefaultTick * ms_frame / 1000
         NewDay = False
         if self.seconds > DayLength:
@@ -319,9 +349,6 @@ class HealthBar:
         self.hp = hp
         self.max_hp = max_hp
 
-
-
-
     def draw(self, hp):
         global fps
         global PlayerCharacter
@@ -333,7 +360,9 @@ class HealthBar:
         pygame.draw.rect(screen, green, (self.x, self.y, 150 * ratio, 20))
 
         titleratio = round(ratio * 100)
-        txt = font.render((str(round(PlayerCharacter.hp)) + "/" + str(PlayerCharacter.max_hp) + "   " + str(titleratio) + "%"), True, blue)
+        txt = font.render(
+            (str(round(PlayerCharacter.hp)) + "/" + str(PlayerCharacter.max_hp) + "   " + str(titleratio) + "%"), True,
+            blue)
         screen.blit(txt, (self.x + 2, self.y))
         title = font.render("Health", True, pygame.Color('black'))
         screen.blit(title, (self.x + 50, self.y - 25))
@@ -578,10 +607,11 @@ class Job:
         if JobListBools[self.JobIDNumber] or not HasJob:
             if JobListBools[self.JobIDNumber] and HasJob:
                 text = font.render(JobList[self.JobIDNumber], True, Font_ActiveTextColor)
-                subText = subFont.render("Current Job", True,Font_ActiveTextColor)
+                subText = subFont.render("Current Job", True, Font_ActiveTextColor)
             else:
                 text = font.render(JobList[self.JobIDNumber], True, Font_ActiveTextColor)
-                subText = subFont.render(str("${:,}".format(JobListIncome[self.JobIDNumber]) + "/day"), True, Font_ActiveTextColor)
+                subText = subFont.render(str("${:,}".format(JobListIncome[self.JobIDNumber]) + "/day"), True,
+                                         Font_ActiveTextColor)
         else:
             text = font.render(JobList[self.JobIDNumber], True, Font_InActiveTextColor)
             subText = subFont.render(str("${:,}".format(JobListIncome[self.JobIDNumber]) + "/day"), True,
@@ -1005,6 +1035,79 @@ class ShopBed:
         self.surface.blit(subText, subText_rect)
 
 
+class ShopHealth:
+    def __init__(self, surface, x, y, image, size_x, size_y, HealthID, HPTickMod, MaxHPMod):
+        self.image = pygame.transform.scale(image, (size_x, size_y))
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (x, y)
+        self.clicked = False
+        self.surface = surface
+        self.size_x = size_x
+        self.size_y = size_y
+        self.x = x
+        self.y = y
+        self.HealthID = HealthID
+        self.HPTickMod = HPTickMod
+        self.MaxHPMod = MaxHPMod
+
+    def draw(self):
+        # get mouse position
+        pos = pygame.mouse.get_pos()
+        global isClicked
+        global PlayerCharacter
+        global Shop_Health_ID
+        global Shop_HealthList
+        global Shop_HealthListCost
+        global Shop_HealthListUnlockedBools
+        global HP_tick
+        global LivingID
+
+        font = pygame.font.SysFont('Times New Roman',
+                                   fit_text_to_width(Shop_HealthList[self.HealthID], pygame.Color('black'), 105))
+        subFont = pygame.font.SysFont('Times New Roman',
+                                      fit_text_to_width("${:,}".format(Shop_HealthListCost[self.HealthID]),
+                                                        pygame.Color('black'), 45))
+
+        if PlayerCharacter.cash >= Shop_HealthListCost[self.HealthID] and LivingID > 0:
+            text = font.render(Shop_HealthList[self.HealthID], True, Font_ActiveTextColor)
+            subText = subFont.render("${:,}".format(Shop_HealthListCost[self.HealthID]), True, Font_ActiveTextColor)
+        else:
+            text = font.render(Shop_HealthList[self.HealthID], True, Font_InActiveTextColor)
+            subText = subFont.render("${:,}".format(Shop_HealthListCost[self.HealthID]), True, Font_InActiveTextColor)
+        # check mouseover and clicked conditions
+        if self.rect.collidepoint(pos):
+            if pygame.mouse.get_pressed()[0] == 1 and isClicked == False:
+                # code here
+                isClicked = True
+                if LivingID > 0:
+                    if Shop_Health_ID < self.HealthID and PlayerCharacter.cash >= Shop_HealthListCost[self.HealthID]:
+                        Shop_Health_ID = self.HealthID
+                        Shop_HealthListUnlockedBools[self.HealthID] = True
+                        Shop_HealthListUnlockedBools[self.HealthID - 1] = False
+                        PlayerCharacter.cash -= Shop_HealthListCost[self.HealthID]
+                        HP_tick += self.HPTickMod
+                        PlayerCharacter.max_hp += self.MaxHPMod
+                        Shop_HealthListUnlockedBools[self.HealthID] = True
+                    else:
+                        fly_text = FlyText(75, 15, str("Need More Cash"), pygame.Color('black'))
+                        fly_text_group.add(fly_text)
+                        isClicked = True
+                else:
+                    fly_text = FlyText(75, 10, str("Need A Place to Live First"), pygame.Color('red'))
+                    fly_text_group.add(fly_text)
+                    isClicked = True
+
+        if pygame.mouse.get_pressed()[0] == 0:
+            isClicked = False
+
+        # draw button
+        self.surface.blit(self.image, (self.rect.x, self.rect.y))
+        text_rect = text.get_rect(center=(self.x + self.size_x / 2, self.y + 15))
+        subText_rect = subText.get_rect(center=(self.x + self.size_x / 2, self.y + 35))
+        self.surface.blit(text, text_rect)
+        self.surface.blit(subText, subText_rect)
+
+
 """        
 GUI Classes
 """
@@ -1193,7 +1296,6 @@ class Button_Restart:
         self.surface.blit(self.image, (self.rect.x, self.rect.y))
         text_rect = text.get_rect(center=(self.x + self.size_x / 2, self.y + self.size_y / 2))
         self.surface.blit(text, text_rect)
-
 
 
 class FlyText(pygame.sprite.Sprite):
@@ -1479,6 +1581,17 @@ BTN_Bed_Twin = ShopBed(screen, xstart, ystart, BTN_Empty_IMG, 150, 50, 1, -.001,
 BTN_Bed_Full = ShopBed(screen, xstart, ystart, BTN_Empty_IMG, 150, 50, 2, -.002, 15)
 BTN_Bed_Queen = ShopBed(screen, xstart, ystart, BTN_Empty_IMG, 150, 50, 3, -.003, 20)
 BTN_Bed_King = ShopBed(screen, xstart, ystart, BTN_Empty_IMG, 150, 50, 4, -.004, 25)
+# Medicines #
+xstart = 300
+ystart = 280
+BTN_Med1 = ShopHealth(screen, xstart, ystart, BTN_Empty_IMG, 150, 50, 1, -.001, 10)
+BTN_Med2 = ShopHealth(screen, xstart, ystart, BTN_Empty_IMG, 150, 50, 2, -.002, 15)
+BTN_Med3 = ShopHealth(screen, xstart, ystart, BTN_Empty_IMG, 150, 50, 3, -.003, 20)
+BTN_Med4 = ShopHealth(screen, xstart, ystart, BTN_Empty_IMG, 150, 50, 4, -.004, 25)
+BTN_Med5 = ShopHealth(screen, xstart, ystart, BTN_Empty_IMG, 150, 50, 5, -.005, 30)
+BTN_Med6 = ShopHealth(screen, xstart, ystart, BTN_Empty_IMG, 150, 50, 6, -.010, 35)
+BTN_Med7 = ShopHealth(screen, xstart, ystart, BTN_Empty_IMG, 150, 50, 7, -.015, 40)
+
 
 # Creates House buttons
 BTN_apartment_starter = House(screen, player_health_bar.x,
@@ -1526,7 +1639,7 @@ BTN_Jobs = Button_Jobs(screen, player_health_bar.x, player_health_bar.y + 275,
 BTN_Housing = Button_Housing(screen, player_exhaustion_bar.x,
                              player_health_bar.y + 275, Housing_img, 150, 50)
 BTN_Home = Button_Home(screen, 5, 5, Home_button_img, 50, 50)
-BTN_Restart = Button_Restart(screen, GameWindowWidth/2, GameWindowHeight/2 + 50, BTN_Empty_IMG, 150, 50)
+BTN_Restart = Button_Restart(screen, GameWindowWidth / 2, GameWindowHeight / 2 + 50, BTN_Empty_IMG, 150, 50)
 
 list1 = DropDown(
     [COLOR_INACTIVE, COLOR_ACTIVE],
@@ -1546,7 +1659,7 @@ while GameRunning:
     if MenuState == "main":
         if PlayerCharacter.hp > 0:
             if not PauseTicking:
-                #PlayerCharacter.hp -= HP_tick
+                # PlayerCharacter.hp -= HP_tick
 
                 PlayerCharacter.hp -= (DefaultTick * ms_frame / 1000) + HP_tick
         else:
@@ -1563,8 +1676,6 @@ while GameRunning:
                 PlayerCharacter.food -= Food_tick + (DefaultTick * ms_frame / 1000)
             else:
                 PlayerCharacter.hp -= HP_Decrease + (DefaultTick * ms_frame / 1000)
-
-            #DayProgressBar.seconds += DefaultTick * ms_frame / 1000
 
         if NewDay:
             if JobListBools[1]:
@@ -1649,6 +1760,25 @@ while GameRunning:
             BTN_Bed_King.draw()
         else:
             draw_text("No New Beds", pygame.font.SysFont('Times New Roman', 25), pygame.Color('black'), 305, 130)
+
+        draw_text("Health Items", pygame.font.SysFont('Calibri', 30), pygame.Color('black'), 300, 240)
+        pygame.draw.rect(screen, pygame.Color('black'), pygame.Rect(280, 225, 190, 130), 4, border_radius=50)
+        if Shop_HealthListUnlockedBools[0]:
+            BTN_Med1.draw()
+        elif Shop_HealthListUnlockedBools[1]:
+            BTN_Med2.draw()
+        elif Shop_HealthListUnlockedBools[2]:
+            BTN_Med3.draw()
+        elif Shop_HealthListUnlockedBools[3]:
+            BTN_Med4.draw()
+        elif Shop_HealthListUnlockedBools[4]:
+            BTN_Med5.draw()
+        elif Shop_HealthListUnlockedBools[5]:
+            BTN_Med6.draw()
+        elif Shop_HealthListUnlockedBools[6]:
+            BTN_Med7.draw()
+        else:
+            draw_text("No New Items", pygame.font.SysFont('Times New Roman', 25), pygame.Color('black'), 305, 280)
 
     elif MenuState == "housing":
         BTN_Home.draw()
@@ -1749,10 +1879,13 @@ while GameRunning:
     # Cheat Codes
     if Cheat1 and Cheat2:
         PlayerCharacter.cash += 100000
-        Cheat1, Cheat2 = False, False
+        Cheat1 = False
+    elif Cheat1 and Cheat3:
+        PlayerCharacter.cash += 1000000
+        Cheat1 = False
     elif Cheat1:
         PlayerCharacter.cash += 100
-        Cheat1, Cheat2 = False, False
+        Cheat1 = False
 
     # Key Events
     for event in pygame.event.get():
@@ -1783,6 +1916,8 @@ while GameRunning:
 
             if event.key == pygame.K_LSHIFT:
                 Cheat2 = True
+            if event.key == pygame.K_LCTRL:
+                Cheat3 = True
             '''       
             if event.key == pygame.K_ESCAPE:
                 gameRunning = False
@@ -1794,6 +1929,9 @@ while GameRunning:
             if event.key == pygame.K_LSHIFT:
                 if Cheat2:
                     Cheat2 = False
+            if event.key == pygame.K_LCTRL:
+                if Cheat3:
+                    Cheat3 = False
             if event.key == pygame.K_c:
                 if Cheat1:
                     Cheat1 = False
