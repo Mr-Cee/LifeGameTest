@@ -4,6 +4,7 @@ from pygame.locals import *
 import pickle
 import button
 import locale
+import datetime
 import os
 import time
 import json
@@ -760,6 +761,7 @@ class Food:
         global isClicked
         global ShopList
         global ShopID
+        global PlayerCharacter
 
         font = pygame.font.SysFont('Times New Roman',
                                    fit_text_to_width("Eat " + ShopList[ShopID], pygame.Color('black'), 105))
@@ -1089,7 +1091,7 @@ class ShopHealth:
                         PlayerCharacter.max_hp += self.MaxHPMod
                         Shop_HealthListUnlockedBools[self.HealthID] = True
                     else:
-                        fly_text = FlyText(75, 15, str("Need More Cash"), pygame.Color('black'))
+                        fly_text = FlyText(75, 15, str("Need More Cash"), pygame.Color('red'))
                         fly_text_group.add(fly_text)
                         isClicked = True
                 else:
@@ -1473,6 +1475,7 @@ def ResetStats():
     global JobListBools
     global HasJob
     global ShopID
+    global HasFood
     global ShopFoodListUnlockBools
     global CurrentJob
     global CurrentLiving
@@ -1519,6 +1522,7 @@ def ResetStats():
     }
     HasJob = False
     ShopID = 0
+    HasFood = False
     ShopFoodListUnlockBools = {0: True,
                                1: False,
                                2: False,
@@ -1592,7 +1596,6 @@ BTN_Med5 = ShopHealth(screen, xstart, ystart, BTN_Empty_IMG, 150, 50, 5, -.005, 
 BTN_Med6 = ShopHealth(screen, xstart, ystart, BTN_Empty_IMG, 150, 50, 6, -.010, 35)
 BTN_Med7 = ShopHealth(screen, xstart, ystart, BTN_Empty_IMG, 150, 50, 7, -.015, 40)
 
-
 # Creates House buttons
 BTN_apartment_starter = House(screen, player_health_bar.x,
                               player_health_bar.y + 25, BTN_Empty_IMG, 150, 50,
@@ -1632,12 +1635,12 @@ BTN_Job_Doctor = Job(screen, 100, 460, BTN_Empty_IMG, 150, 50, 8)
 # Creates UI Buttons
 BTN_Options = Button_Options(screen, GameWindowWidth - 55,
                              GameWindowHeight - 55, Options_img, 50, 50)
-BTN_Shop = Button_Shop(screen, player_food_bar.x, player_food_bar.y + 275,
+BTN_Shop = Button_Shop(screen, player_food_bar.x, 450,
                        Shop_img, 150, 50)
-BTN_Jobs = Button_Jobs(screen, player_health_bar.x, player_health_bar.y + 275,
+BTN_Jobs = Button_Jobs(screen, player_health_bar.x, 450,
                        Jobs_img, 150, 50)
 BTN_Housing = Button_Housing(screen, player_exhaustion_bar.x,
-                             player_health_bar.y + 275, Housing_img, 150, 50)
+                             450, Housing_img, 150, 50)
 BTN_Home = Button_Home(screen, 5, 5, Home_button_img, 50, 50)
 BTN_Restart = Button_Restart(screen, GameWindowWidth / 2, GameWindowHeight / 2 + 50, BTN_Empty_IMG, 150, 50)
 
@@ -1647,36 +1650,36 @@ list1 = DropDown(
     100, 100, 100, 50,
     pygame.font.SysFont(None, 30),
     str(DefaultTick), ["1", "2", "5", "10", "20"])
-
+MenuState = "main"
 while GameRunning:
 
     clock.tick(fps)
     draw_BG()
+    now = datetime.datetime.now()
 
     ### Displays Main Screen ###
 
     # Menustates
     if MenuState == "main":
-        if PlayerCharacter.hp > 0:
+        if 0 < PlayerCharacter.hp <= PlayerCharacter.max_hp:
             if not PauseTicking:
                 # PlayerCharacter.hp -= HP_tick
 
-                PlayerCharacter.hp -= (DefaultTick * ms_frame / 1000) + HP_tick
+                PlayerCharacter.hp -= HP_tick * DefaultTick
         else:
             MenuState = "GAME OVER"
             ResetStats()
 
         if not PauseTicking:
             if 0 < PlayerCharacter.exhaustion <= PlayerCharacter.max_exhaustion:
-                PlayerCharacter.exhaustion -= Sleep_tick + (DefaultTick * ms_frame / 1000)
+                PlayerCharacter.exhaustion -= Sleep_tick * DefaultTick
             else:
-                PlayerCharacter.hp -= HP_Decrease + (DefaultTick * ms_frame / 1000)
+                PlayerCharacter.hp -= HP_Decrease
 
             if PlayerCharacter.food > 0:
-                PlayerCharacter.food -= Food_tick + (DefaultTick * ms_frame / 1000)
+                PlayerCharacter.food -= Food_tick * DefaultTick
             else:
-                PlayerCharacter.hp -= HP_Decrease + (DefaultTick * ms_frame / 1000)
-
+                PlayerCharacter.hp -= HP_Decrease
         if NewDay:
             if JobListBools[1]:
                 BTN_Fast_Food_Job.update()
@@ -1706,9 +1709,9 @@ while GameRunning:
                 GameStartTicks = pygame.time.get_ticks()
 
         draw_text("Current Living Arrangements: " + CurrentLiving, font,
-                  pygame.Color('black'), 15, 400)
+                  pygame.Color('black'), 15, 250)
         draw_text("Current Job: " + CurrentJob, font, pygame.Color('black'),
-                  15, 425)
+                  15, 275)
         # Draw Bars
         player_health_bar.draw(PlayerCharacter.hp)
         player_food_bar.draw(PlayerCharacter.food)
@@ -1728,6 +1731,13 @@ while GameRunning:
         draw_text_centered("Cash: " + "${:,}".format(PlayerCharacter.cash),
                            font, pygame.Color('black'), GameWindowWidth / 2,
                            15)
+
+        start_x = 250
+        start_y = 250
+        draw_text("Current Stats", pygame.font.SysFont('Times New Roman', 25), pygame.Color('black'), start_x+ 148, start_y)
+        draw_text("HP Tick Rate: " + str(round(HP_tick * -1 * fps * DefaultTick, 1)), pygame.font.SysFont('Times New Roman', 20), pygame.Color('black'), start_x + 148, start_y + 50)
+        draw_text("Food Tick Rate: " + str(round(Food_tick * -1 * fps * DefaultTick, 1)), pygame.font.SysFont('Times New Roman', 20), pygame.Color('black'), start_x + 148, start_y + 75)
+        draw_text("Sleep Tick Rate: " + str(round(Sleep_tick * -1 * fps * DefaultTick, 1)), pygame.font.SysFont('Times New Roman', 20), pygame.Color('black'), start_x + 148, start_y + 100)
 
     elif MenuState == "shop":
         BTN_Home.draw()
@@ -1789,22 +1799,6 @@ while GameRunning:
         draw_text("Housing", pygame.font.SysFont('Times New Roman', 25),
                   pygame.Color('black'), player_health_bar.x + 30,
                   player_health_bar.y - 10)
-        pygame.draw.rect(screen, pygame.Color('black'),
-                         pygame.Rect(GameWindowWidth / 2, 75, 350, 400), 4)
-        pygame.draw.line(screen, pygame.Color('black'), (550, 125), (700, 125),
-                         5)
-        draw_text_centered("Current Stats",
-                           pygame.font.SysFont('Times New Roman', 25),
-                           pygame.Color('black'), 623, 100)
-        draw_text("HP Decrease Rate: " + str(round(HP_tick * -1 * 60 * DefaultTick, 1)),
-                  pygame.font.SysFont('Times New Roman', 20),
-                  pygame.Color('black'), 475, 150)
-        draw_text("Food Decrease Rate: " + str(round(Food_tick * -1 * 60 * DefaultTick, 1)),
-                  pygame.font.SysFont('Times New Roman', 20),
-                  pygame.Color('black'), 475, 175)
-        draw_text("Sleep Decrease Rate: " + str(round(Sleep_tick * -1 * 60 * DefaultTick, 1)),
-                  pygame.font.SysFont('Times New Roman', 20),
-                  pygame.Color('black'), 475, 200)
 
         # Draws the next housing option available
         if LivingBools[0]:
@@ -1826,8 +1820,7 @@ while GameRunning:
         else:
             draw_text("No New Housing",
                       pygame.font.SysFont('Times New Roman', 25),
-                      pygame.Color('black'), player_health_bar.x - 35,
-                      player_health_bar.y + 25)
+                      pygame.Color('black'), 85, 100)
 
     elif MenuState == "jobs":
         BTN_Home.draw()
